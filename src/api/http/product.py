@@ -1,5 +1,5 @@
 import uuid
-from typing import Literal, TypeAlias
+from typing import Literal, TypeAlias, List
 
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
@@ -21,7 +21,7 @@ router = APIRouter(
 )
 
 
-@router.get('/', response_model=Product)
+@router.get('/', response_model=List[Product])
 async def get_products(
     product_service: FromDishka[ProductService], sort: _SortLiteral,
 ) -> JSONResponse:
@@ -63,7 +63,7 @@ async def get_products(
     )
 
 
-@router.get('/{product_id}/purchase', response_model=Product)
+@router.get('/{product_id}/purchase')
 async def purchase_product(
     order_data: CreateOrderDTO,
     product_service: FromDishka[ProductService],
