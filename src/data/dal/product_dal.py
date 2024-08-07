@@ -72,33 +72,31 @@ class ProductDAL:
         res = await self._get(**kwargs)
 
         if res:
-            db_user = res.scalar_one_or_none()
+            db_product = res.scalar_one_or_none()
             return Product(
-                user_id=db_user.user_id,
-                referral_id=db_user.referral_id,
-                last_activity=db_user.last_activity,
-                language=db_user.language,
-                status=db_user.status,
-                limit=db_user.limit,
-                created_at=db_user.created_at,
+                id=db_product.id,
+                name=db_product.name,
+                description=db_product.description,
+                price=db_product.price,
+                instruction=db_product.instruction,
+                purchase_count=db_product.purchase_count,
             )
 
     async def get_all(self, **kwargs: Optional[Any]) -> Optional[List[Product]]:
         res = await self._get(**kwargs)
 
         if res:
-            db_users = res.scalars().all()
+            db_products = res.scalars().all()
             return [
                 Product(
-                    user_id=db_user.user_id,
-                    referral_id=db_user.referral_id,
-                    last_activity=db_user.last_activity,
-                    language=db_user.language,
-                    status=db_user.status,
-                    limit=db_user.limit,
-                    created_at=db_user.created_at,
-                )
-                for db_user in db_users
+                    id=db_product.id,
+                    name=db_product.name,
+                    description=db_product.description,
+                    price=db_product.price,
+                    instruction=db_product.instruction,
+                    purchase_count=db_product.purchase_count,
+            )
+                for db_product in db_products
             ]
 
     async def delete(self, **kwargs) -> None:
