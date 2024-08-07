@@ -1,7 +1,6 @@
 from uuid import UUID
 from dataclasses import dataclass, field
 
-
 @dataclass(frozen=True)
 class Product:
     id: UUID

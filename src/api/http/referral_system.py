@@ -1,3 +1,5 @@
+from typing import Union
+
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 
@@ -8,6 +10,7 @@ from src.services import UserService
 from src.api.schema.referral import ReferralCode, NewReferralCode
 from src.main.config import settings
 
+
 router = APIRouter(
     prefix="/referral",
     tags=["Referral System"],
@@ -16,23 +19,17 @@ router = APIRouter(
 
 
 @router.get("/get_code", response_model=ReferralCode)
-async def get_referral_code(user_id: int, user_service: FromDishka[UserService]) -> JSONResponse:
+async def get_referral_code(
+    user_id: int,
+    user_service: FromDishka[UserService],
+) -> Union[JSONResponse, ReferralCode]:
     user = await user_service.get_one_user(user_id=user_id)
     if not user:
         return JSONResponse(status_code=404, content="User not found")
     
     referral_url = settings.get_referral_url(user.referral_code)
-    
-    return JSONResponse(
-        status_code=200,
-        content=dict(
-            description='success',
-            referral_code=ReferralCode(
-                code=user.referral_code,
-                referral_url=referral_url,
-            )
-        )
-    )
+
+    return ReferralCode(code=user.referral_code, referral_url=referral_url)
 
 
 #TODO: сделать try, except на апдейт юзера на `UniqueConstraintFailed`, чтобы проверить занят ли этот код кем то или нет
@@ -41,7 +38,7 @@ async def set_code(
     user_id: int,
     referral_code: NewReferralCode,
     user_service: FromDishka[UserService],
-) -> JSONResponse:
+) -> Union[JSONResponse, ReferralCode]:
     user = await user_service.get_one_user(user_id=user_id)
     if not user:
         return JSONResponse(status_code=404, content=dict(description='User not found'))
@@ -51,13 +48,4 @@ async def set_code(
     await user_service.update_user(user_id=user_id, referral_code=referral_code)
     referral_url = settings.get_referral_url(referral_code)
 
-    return JSONResponse(
-        status_code=200,
-        content=dict(
-            description='success',
-            referral_code=ReferralCode(
-                code=user.referral_code,
-                referral_url=referral_url,
-            )
-        )
-    )
+    return ReferralCode(code=user.referral_code, referral_url=referral_url)

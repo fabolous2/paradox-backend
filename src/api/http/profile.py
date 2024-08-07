@@ -1,5 +1,5 @@
 import uuid
-from typing import List
+from typing import List, Union
 
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
@@ -19,85 +19,76 @@ router = APIRouter(
 
 
 @router.get("/", response_model=User)
-async def get_user(user_id: int, user_service: FromDishka[UserService]) -> JSONResponse:
+async def get_user(
+    user_id: int,
+    user_service: FromDishka[UserService]
+) -> Union[JSONResponse, User]:
     user = await user_service.get_user(user_id=user_id)
     if user:
         return JSONResponse(
-            status_code=200,
-            content=dict(user=user),
+            status_code=404,
+            content='User not found.',
         )
+
+    return user
     
-    return JSONResponse(
-        status_code=404,
-        content='User not found.',
-    )
-
-
+    
 @router.get("/orders", response_model=List[Order])
 async def get_user_orders(
-    user_id: int, order_service: FromDishka[OrderService]
-) -> JSONResponse:
+    user_id: int,
+    order_service: FromDishka[OrderService],
+) -> Union[JSONResponse, List[Order]]:
     orders = await order_service.get_orders(user_id=user_id)
-    if orders:
+    if not orders:
         return JSONResponse(
-            status_code=200,
-            content=dict(orders=orders)
+            status_code=404,
+            content=dict('User has no orders.')
         )
     
-    return JSONResponse(
-        status_code=404,
-        content=dict('User has no orders.')
-    )
+    return orders
+   
 
-
-@router.get("/orders/{order_id}", response_model=List[Order])
+@router.get("/orders/{order_id}", response_model=Order)
 async def get_one_order(
     order_id: uuid.UUID,
-    order_service: FromDishka[OrderService]
-) -> JSONResponse:
+    order_service: FromDishka[OrderService],
+) -> Union[JSONResponse, Order]:
     order = await order_service.get_one_order(order_id=order_id)
-    if order:
+    if not order:
         return JSONResponse(
-            status_code=200,
-            content=dict(order=order)
+            status_code=404,
+            content=dict('Order not found')
         )
-    
-    return JSONResponse(
-        status_code=404,
-        content=dict('Order not found')
-    )
 
+    return order
+   
 
 @router.get("/transactions", response_model=List[Transaction])
 async def get_user_transactions(
-    user_id: int, transaction_service: FromDishka[TransactionService]
-) -> JSONResponse:
+    user_id: int,
+    transaction_service: FromDishka[TransactionService],
+) -> Union[JSONResponse, List[Transaction]]:
     transactions = await transaction_service.get_transactions(user_id=user_id)
-    if transactions:
+    if not transactions:  
         return JSONResponse(
-            status_code=200,
-            content=dict(transactions=transactions)
+            status_code=404,
+            content=dict('User has no transactions')
         )
-    
-    return JSONResponse(
-        status_code=404,
-        content=dict('User has no transactions')
-    )
+
+    return transactions
 
 
-@router.get("/transactions/{transaction_id}", response_model=List[Transaction])
+@router.get("/transactions/{transaction_id}", response_model=Transaction)
 async def get_one_transaction(
     transaction_id: uuid.UUID,
     transaction_service: FromDishka[TransactionService]
-) -> JSONResponse:
-    transactions = await transaction_service.get_one_transaction(id=transaction_id)
-    if transactions:
+) -> Union[JSONResponse, Transaction]:
+    transaction = await transaction_service.get_one_transaction(id=transaction_id)
+    if not transaction:
         return JSONResponse(
-            status_code=200,
-            content=dict(transactions=transactions)
+            status_code=404,
+            content=dict('Transaction not found')
         )
+
+    return transaction
     
-    return JSONResponse(
-        status_code=404,
-        content=dict('Transaction not found')
-    )

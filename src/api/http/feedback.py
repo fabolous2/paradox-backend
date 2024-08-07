@@ -1,5 +1,5 @@
 import uuid
-from typing import List
+from typing import List, Union
 
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
@@ -39,26 +39,16 @@ async def post_feedback(
 
 
 @router.get("/", response_model=List[Feedback])
-async def get_feedbacks(feedback_service: FromDishka[FeedbackService]) -> JSONResponse:
-    feedbacks = await feedback_service.get_feedbacks(is_active=True)
-
-    return JSONResponse(
-        status_code=200,
-        content=dict(message='success', feedbacks=feedbacks)
-    )
+async def get_feedbacks(feedback_service: FromDishka[FeedbackService]) -> List[Feedback]:
+    return await feedback_service.get_feedbacks(is_active=True)
 
 
 @router.get("/{feedback_id}", response_model=Feedback)
 async def get_one_feedback(
     feedback_id: uuid.UUID,
     feedback_service: FromDishka[FeedbackService],
-) -> JSONResponse:
-    feedback = await feedback_service.get_one_feedback(id=feedback_id)
-
-    return JSONResponse(
-        status_code=200,
-        content=dict(message='success', feedback=feedback)
-    )
+) -> Feedback:
+    return await feedback_service.get_one_feedback(id=feedback_id)
 
 
 @router.get("/remove/{feedback_id}", response_model=Feedback)
