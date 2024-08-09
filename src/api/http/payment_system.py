@@ -4,10 +4,8 @@ from fastapi.responses import JSONResponse
 from dishka import FromDishka
 from dishka.integrations.fastapi import DishkaRoute
 
-from src.services import UserService
-from src.api.schema.referral import ReferralCode, NewReferralCode
-from src.main.config import settings
-from src.api.schema.payment import RawSumma, TopUpMethod
+from src.services import BileeService
+from src.api.schema.payment import TopUpSchema
 
 
 router = APIRouter(
