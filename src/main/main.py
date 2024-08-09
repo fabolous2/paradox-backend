@@ -15,7 +15,7 @@ from src.api.http import (
     referral_system,
     supercell_auth,
     feedback,
-    payment_system
+    payment_system,
 )
 from src.main.ioc import DALProvider, DatabaseProvider, ServiceProvider
 
