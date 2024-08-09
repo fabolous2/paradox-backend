@@ -8,7 +8,15 @@ from sqlalchemy.exc import DBAPIError
 from dishka import make_async_container
 from dishka.integrations.fastapi import setup_dishka
 
-from src.api.http import product, profile, promo, referral_system, supercell_auth, feedback
+from src.api.http import (
+    product,
+    profile,
+    promo,
+    referral_system,
+    supercell_auth,
+    feedback,
+    payment_system
+)
 from src.main.ioc import DALProvider, DatabaseProvider, ServiceProvider
 
 
@@ -37,6 +45,7 @@ app.include_router(promo.router)
 app.include_router(referral_system.router)
 app.include_router(supercell_auth.router)
 app.include_router(feedback.router)
+app.include_router(payment_system.router)
 
 container = make_async_container(DALProvider(), DatabaseProvider(), ServiceProvider())
 setup_dishka(container, app)
