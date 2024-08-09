@@ -12,7 +12,8 @@ from src.services import (
     OrderService,
     PromoService,
     SupercellAuthService,
-    FeedbackService
+    FeedbackService,
+    BileeService,
 )
 from src.data.dal import (
     UserDAL,
@@ -56,4 +57,5 @@ class ServiceProvider(Provider):
     promo_service = provide(PromoService, scope=Scope.REQUEST, provides=PromoService)
     supercell_service = provide(SupercellAuthService, scope=Scope.REQUEST, provides=SupercellAuthService)
     feedback_service = provide(FeedbackService, scope=Scope.REQUEST, provides=FeedbackService)
+    bilee_service = provide(BileeService, scope=Scope.REQUEST, provides=BileeService)
     

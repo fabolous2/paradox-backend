@@ -9,6 +9,8 @@ class Settings(BaseSettings):
     DB_PORT: str
     POSTGRES_PASSWORD: str
     BOT_URL: str
+    BILEE_SHOP_ID: str
+    BILEE_PASSWORD: str
     
     model_config = SettingsConfigDict(env_file=".env")
 
