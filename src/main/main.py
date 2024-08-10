@@ -35,7 +35,7 @@ async def validation_exception_handler(request: Request, exc: ValidationExceptio
 async def validation_exception_handler(request: Request, exc: DBAPIError):
     return JSONResponse(
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-        content=jsonable_encoder({"detail": "Wrong SQL statement."}),
+        content=jsonable_encoder({"detail": "Wrong SQL statement or params."}),
     )
 
 

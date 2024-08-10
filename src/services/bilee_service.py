@@ -1,5 +1,4 @@
 import random
-from uuid import uuid4
 import hashlib
 from time import time
 from typing import Mapping, Optional

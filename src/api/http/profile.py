@@ -23,12 +23,8 @@ async def get_user(
     user_id: int,
     user_service: FromDishka[UserService]
 ) -> Union[JSONResponse, User]:
-    user = await user_service.get_user(user_id=user_id)
-    if user:
-        return JSONResponse(
-            status_code=404,
-            content='User not found.',
-        )
+    user = await user_service.get_one_user(user_id=user_id)
+    print(user)
 
     return user
     

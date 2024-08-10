@@ -15,11 +15,13 @@ router = APIRouter(
 )
 
 
-@router.get('/')
+@router.post('/')
 async def top_up(
     data: TopUpSchema,
     bilee_service: FromDishka[BileeService],
 ) -> JSONResponse:
-    response = bilee_service.create_invoice(amount=data.amount, method=data.method.value)
+    print(data.method.value)
+    print(data.amount)
+    response = bilee_service.create_invoice(amount=10, method=data.method.value)
 
     return JSONResponse(status_code=200, content=dict(service_response=response))
