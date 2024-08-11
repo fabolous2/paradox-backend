@@ -13,10 +13,10 @@ class PromoStatus(Enum):
 
 @dataclass(frozen=True)
 class Promo():
-    id: uuid.UUID
     name: str
     bonus_amount: float
     uses: int
+    id: uuid.UUID = field(default=uuid.uuid4())
     status: PromoStatus = field(default=PromoStatus.ACTIVE)
 
 
