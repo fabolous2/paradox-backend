@@ -1,3 +1,4 @@
+import uuid
 from typing import Optional, TypeAlias, List, Any
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -19,8 +20,16 @@ class PromoDAL:
         await self.session.execute(query)
         await self.session.commit()
 
-    async def update(self, user_id: int, **kwargs) -> None:
-        query = update(PromoModel).where(PromoModel.user_id == user_id).values(**kwargs)
+    async def update(
+        self,
+        promo_id: Optional[uuid.UUID] = None,
+        name: Optional[str] = None,
+        **kwargs,
+    ) -> None:
+        if promo_id:
+            query = update(PromoModel).where(PromoModel.id == promo_id).values(**kwargs)
+        else:
+            query = update(PromoModel).where(PromoModel.name == name).values(**kwargs)
         await self.session.execute(query)
         await self.session.commit()
 
@@ -39,8 +48,8 @@ class PromoDAL:
         result = await self.session.execute(query)
         return result.scalar_one()
 
-    async def is_column_filled(self, user_id: int, *column_names: str) -> bool:
-        user_exists = await self.exists(user_id=user_id)
+    async def is_column_filled(self, promo_id: int, *column_names: str) -> bool:
+        user_exists = await self.exists(promo_id=promo_id)
         if not user_exists:
             return False
 
@@ -50,7 +59,7 @@ class PromoDAL:
                 for column_name in column_names
                 if hasattr(PromoModel, column_name)
             )
-        ).where(PromoModel.user_id == user_id)
+        ).where(PromoModel.promo_id == promo_id)
 
         result = await self.session.execute(query)
         column_value = result.scalar_one_or_none()
