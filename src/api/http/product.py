@@ -1,5 +1,4 @@
 import uuid
-import json
 from typing import Literal, TypeAlias, List
 
 from fastapi import APIRouter
@@ -8,10 +7,17 @@ from fastapi.responses import JSONResponse
 from dishka import FromDishka
 from dishka.integrations.fastapi import DishkaRoute
 
+from aiogram import Bot
+from aiogram.client.default import DefaultBotProperties
+from aiogram.enums import ParseMode
+
 from src.schema import Product
 from src.services import ProductService, UserService, OrderService
 from src.api.schema.order import CreateOrderDTO
 from src.api.schema.product import CreateProduct
+from src.main.config import settings
+from src.bot.app.main.config import dev_config
+from src.bot.app.bot.keyboards import inline
 
 _SortLiteral: TypeAlias = Literal["purchase_count", "price_lower", "price_higher"] 
 
@@ -59,7 +65,7 @@ async def get_products(
     return product
 
 
-@router.get('/{product_id}/purchase')
+@router.post('/{product_id}/purchase')
 async def purchase_product(
     order_data: CreateOrderDTO,
     product_service: FromDishka[ProductService],
@@ -84,13 +90,14 @@ async def purchase_product(
             status_code=409,
             content=dict(
                 description='Insufficient funds on user balance',
-                user_balance=user.balance,
-                top_up_amount=product.price - user.balance,
+                user_balance=float(user.balance),
+                top_up_amount=float(product.price - user.balance),
             )
         )
     
+    order_id = uuid.uuid4()
     await order_service.add_order(
-        id=uuid.uuid4(),
+        id=order_id,
         user_id=order_data.user_id,
         product_id=order_data.product_id,
         name=product.name,
@@ -98,7 +105,33 @@ async def purchase_product(
         additional_data=order_data.additional_data.model_dump_json(),
     )
 
-    return JSONResponse(status_code=200, content=dict(message="success"))
+    try:
+        bot = Bot(token=settings.BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+        admins = dev_config.admin.admins
+
+        for user_id in admins:
+            await bot.send_message(
+                chat_id=user_id,
+                text=f'''
+<b>Заказ:</b><code> {order_id}</code>
+<b>ID пользователя:</b> {order_data.user_id}
+<b>Профиль пользователя:</b> <a href="tg://user?id={order_data.user_id}">USER</a>
+
+<b>Игра</b>: none
+<b>Категория</b>: none
+<b>Товар</b>: {product.name}
+<b>Цена</b>: {product.price} ₽
+
+<b>Почта</b>: {order_data.additional_data.email}
+<b>Код</b>: {order_data.additional_data.code}
+''',
+                reply_markup=inline.order_confirmation_kb_markup(user_id=order_data.user_id)
+            )
+            return JSONResponse(status_code=200, content=dict(message="success"))
+    except Exception as ex:
+        print(ex)
+    finally:
+        await bot.session.close()
 
 
 @router.post("/create")

@@ -1,9 +1,8 @@
-import enum
 import uuid
 import datetime
 from typing import Mapping, Any
 
-from sqlalchemy import Enum, UUID, TIMESTAMP, String, Integer, DECIMAL, ForeignKey, JSON
+from sqlalchemy import Enum, UUID, TIMESTAMP, String, DECIMAL, ForeignKey, JSON, BigInteger
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.data.models import Base
@@ -14,10 +13,14 @@ class OrderModel(Base):
     __tablename__ = "order"
 
     id: Mapped[uuid.UUID] = mapped_column(UUID, primary_key=True)
-    user_id: Mapped[int] = mapped_column(Integer, ForeignKey('user.user_id'))
+    user_id: Mapped[int] = mapped_column(BigInteger, ForeignKey('user.user_id'))
     product_id: Mapped[uuid.UUID] = mapped_column(UUID, ForeignKey('product.id'))
     name: Mapped[str] = mapped_column(String, nullable=False)
-    status: Mapped[enum.Enum] = mapped_column(Enum(OrderStatus), nullable=False, default=OrderStatus.PROGRESS)
+    status: Mapped[OrderStatus] = mapped_column(
+        Enum(OrderStatus),
+        nullable=False,
+        default=OrderStatus.PROGRESS,
+    )
     price: Mapped[DECIMAL] = mapped_column(DECIMAL, nullable=False)
     time: Mapped[datetime.datetime] = mapped_column(
         TIMESTAMP(timezone=True),

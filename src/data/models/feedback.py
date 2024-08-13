@@ -1,7 +1,7 @@
 import uuid
 import datetime
 
-from sqlalchemy import UUID, String, ForeignKey, Integer, TIMESTAMP, Boolean
+from sqlalchemy import UUID, String, ForeignKey, Integer, TIMESTAMP, Boolean, BigInteger
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.data.models import Base
@@ -12,7 +12,7 @@ class FeedbackModel(Base):
 
     id: Mapped[uuid.UUID] = mapped_column(UUID, primary_key=True)
     product_id: Mapped[uuid.UUID] = mapped_column(UUID, ForeignKey('product.id'))
-    user_id: Mapped[int] = mapped_column(Integer, ForeignKey('user.user_id', ondelete='CASCADE'))
+    user_id: Mapped[int] = mapped_column(BigInteger, ForeignKey('user.user_id', ondelete='CASCADE'))
     text: Mapped[str] = mapped_column(String(500), nullable=False)
     stars: Mapped[int] = mapped_column(Integer, nullable=False)
     time: Mapped[datetime.datetime] = mapped_column(TIMESTAMP(timezone=True), nullable=False, default=datetime.datetime.now(datetime.UTC))

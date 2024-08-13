@@ -1,15 +1,15 @@
 import datetime
-from enum import Enum
+from enum import StrEnum
 from uuid import UUID
 from dataclasses import dataclass, field
 from typing import Mapping, Any
 
 
-class OrderStatus(Enum):
-    PAID = 'Оплачен'
-    CLOSED = 'Закрыт'
-    COMPLETED = 'Завершен'
-    PROGRESS = 'На обработке'
+class OrderStatus(StrEnum):
+    PAID = 'paid'
+    CLOSED = 'closed'
+    COMPLETED = 'completed'
+    PROGRESS = 'progress'
 
 
 @dataclass(frozen=True)

@@ -16,3 +16,10 @@ class UserService:
     
     async def update_user(self, user_id: int, **values) -> None:
         await self.__user_dal.update(user_id=user_id, **values)
+
+    async def add_user(self, **params) -> None:
+        await self.__user_dal.add(**params)
+    
+    async def exists(self, **params) -> bool:
+        return await self.__user_dal.exists(**params)
+    
