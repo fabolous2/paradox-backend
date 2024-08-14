@@ -16,6 +16,8 @@ class ProductModel(Base):
     price: Mapped[float] = mapped_column(DECIMAL, nullable=False)
     instruction: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     purchase_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    game: Mapped[str] = mapped_column(String, nullable=True)
+    category: Mapped[str] = mapped_column(String, nullable=True)
 
     orders = relationship('OrderModel', back_populates='product')
     feedbacks = relationship('FeedbackModel', back_populates='product')

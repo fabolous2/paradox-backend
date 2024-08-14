@@ -1,4 +1,5 @@
 from typing import Optional, List, Any
+from uuid import UUID
 
 from src.data.dal import ProductDAL
 from src.schema import Product
@@ -16,4 +17,7 @@ class ProductService:
     
     async def create_product(self, **params) -> None:
         await self.__product_dal.add(**params)
+    
+    async def update_product(self, product_id: UUID, **params) -> None:
+        await self.__product_dal.update(**params)
         

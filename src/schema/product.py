@@ -9,3 +9,5 @@ class Product:
     price: float
     instruction: str = field(default=None)
     purchase_count: int = field(default=0)
+    game: str = field(default=None)
+    category: str = field(default=None)

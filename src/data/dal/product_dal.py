@@ -1,4 +1,5 @@
 from typing import Optional, TypeAlias, List, Any
+from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import insert, update, select, exists, delete, Result
@@ -19,8 +20,8 @@ class ProductDAL:
         await self.session.execute(query)
         await self.session.commit()
 
-    async def update(self, user_id: int, **kwargs) -> None:
-        query = update(ProductModel).where(ProductModel.user_id == user_id).values(**kwargs)
+    async def update(self, product_id: UUID, **kwargs) -> None:
+        query = update(ProductModel).where(ProductModel.id == product_id).values(**kwargs)
         await self.session.execute(query)
         await self.session.commit()
 

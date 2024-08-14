@@ -1,4 +1,5 @@
 from typing import Optional, Any, List
+from uuid import UUID
 
 from src.data.dal import OrderDAL
 from src.schema import Order
@@ -16,4 +17,7 @@ class OrderService:
 
     async def add_order(self, **params: Optional[Any]) -> None:
         return await self.__order_dal.add(**params)
+    
+    async def update_order(self, order_id: UUID, **params: Optional[Any]) -> None:
+        return await self.__order_dal.update(order_id=order_id, **params)
     

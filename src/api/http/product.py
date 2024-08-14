@@ -18,6 +18,8 @@ from src.api.schema.product import CreateProduct
 from src.main.config import settings
 from src.bot.app.main.config import dev_config
 from src.bot.app.bot.keyboards import inline
+from src.utils import json_text_getter
+
 
 _SortLiteral: TypeAlias = Literal["purchase_count", "price_lower", "price_higher"] 
 
@@ -76,15 +78,9 @@ async def purchase_product(
     product = await product_service.get_one_product(id=order_data.product_id)
 
     if not product:
-        return JSONResponse(
-            status_code=404,
-            content='Product not found.',
-        )
+        return JSONResponse(status_code=404, content='Product not found.')
     elif not user:
-        return JSONResponse(
-            status_code=404,
-            content='Product not found.',
-        )
+        return JSONResponse(status_code=404, content='User not found.')
     elif user.balance < product.price:
         return JSONResponse(
             status_code=409,
@@ -104,6 +100,7 @@ async def purchase_product(
         price=product.price,
         additional_data=order_data.additional_data.model_dump_json(),
     )
+    await user_service.update_user(user_id=order_data.user_id, balance=user.balance - product.price)
 
     try:
         bot = Bot(token=settings.BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
@@ -112,19 +109,11 @@ async def purchase_product(
         for user_id in admins:
             await bot.send_message(
                 chat_id=user_id,
-                text=f'''
-<b>Заказ:</b><code> {order_id}</code>
-<b>ID пользователя:</b> {order_data.user_id}
-<b>Профиль пользователя:</b> <a href="tg://user?id={order_data.user_id}">USER</a>
-
-<b>Игра</b>: none
-<b>Категория</b>: none
-<b>Товар</b>: {product.name}
-<b>Цена</b>: {product.price} ₽
-
-<b>Почта</b>: {order_data.additional_data.email}
-<b>Код</b>: {order_data.additional_data.code}
-''',
+                text=json_text_getter.get_order_info_text(
+                    order_id=order_id,
+                    order_data=order_data,
+                    product=product,
+                ),
                 reply_markup=inline.order_confirmation_kb_markup(user_id=order_data.user_id)
             )
             return JSONResponse(status_code=200, content=dict(message="success"))

@@ -1,26 +1,43 @@
 from uuid import UUID
-from typing import Optional, Union, Any
+from typing import Optional, Union, Any, TypeAlias
 
 from pydantic import BaseModel, EmailStr, Field
 
 
-class BaseOrder(BaseModel):
-    login: Optional[Any]
-    password: Optional[Any]
+class BaseAdditionalData(BaseModel):
+    login: Any
+    password: Any
 
 
 class SupercellData(BaseModel):
     email: EmailStr
-    code: int = Field(ge=6, le=6)
-    
+    code: int = Field(le=999_999, ge=100_000)
 
-class RobloxData(BaseOrder):
+
+class RobloxData(BaseModel):
     login: str
     password: int = Field(ge=6, le=6)
     two_factor_code: Optional[int]
-    
+
+
+class StumbleGuysData(BaseModel):
+    nickname: str
+
+
+class PubgData(BaseModel):
+    pubg_id: str
+
+
+AdditionalData: TypeAlias = Union[
+    BaseAdditionalData,
+    SupercellData,
+    RobloxData,
+    StumbleGuysData,
+    PubgData,
+]
+
 
 class CreateOrderDTO(BaseModel):
     user_id: int
     product_id: UUID
-    additional_data: Optional[Union[SupercellData, RobloxData, BaseOrder]]
+    additional_data: AdditionalData
