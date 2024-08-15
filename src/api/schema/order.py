@@ -38,6 +38,5 @@ AdditionalData: TypeAlias = Union[
 
 
 class CreateOrderDTO(BaseModel):
-    user_id: int
     product_id: UUID
     additional_data: AdditionalData

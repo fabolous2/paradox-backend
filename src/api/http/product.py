@@ -1,7 +1,7 @@
 import uuid
 from typing import Literal, TypeAlias, List
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 
 from dishka import FromDishka
@@ -10,6 +10,7 @@ from dishka.integrations.fastapi import DishkaRoute
 from aiogram import Bot
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
+from aiogram.utils.web_app import WebAppInitData
 
 from src.schema import Product
 from src.services import ProductService, UserService, OrderService
@@ -19,6 +20,8 @@ from src.main.config import settings
 from src.bot.app.main.config import dev_config
 from src.bot.app.bot.keyboards import inline
 from src.utils import json_text_getter
+from src.api.dependencies import user_provider
+from src.api.http.exceptions import MethodNotAllowedError
 
 
 _SortLiteral: TypeAlias = Literal["purchase_count", "price_lower", "price_higher"] 
@@ -26,13 +29,15 @@ _SortLiteral: TypeAlias = Literal["purchase_count", "price_lower", "price_higher
 router = APIRouter(
     prefix="/products",
     tags=["Products"],
-    route_class=DishkaRoute
+    route_class=DishkaRoute,
 )
 
 
 @router.get('/', response_model=List[Product])
 async def get_products(
-    product_service: FromDishka[ProductService], sort: _SortLiteral,
+    product_service: FromDishka[ProductService],
+    sort: _SortLiteral,
+    user_data: WebAppInitData = Depends(user_provider),
 ) -> List[Product]:
     products = await product_service.get_products()
 
@@ -49,6 +54,7 @@ async def get_products(
                     status_code=400,
                     content="`sort` param doesn't match any available options. Available options: 'purchase_count', 'price_higher', 'price_lower'"
                 )
+
     return products
 
 
@@ -56,6 +62,7 @@ async def get_products(
 async def get_products(
     product_id: int,
     product_service: FromDishka[ProductService],
+    user_data: WebAppInitData = Depends(user_provider),
 ) -> Product:
     product = await product_service.get_one_product(id=product_id)
     if not product:
@@ -73,8 +80,9 @@ async def purchase_product(
     product_service: FromDishka[ProductService],
     user_service: FromDishka[UserService],
     order_service: FromDishka[OrderService],
+    user_data: WebAppInitData = Depends(user_provider),
 ) -> JSONResponse:
-    user = await user_service.get_one_user(user_id=order_data.user_id)
+    user = await user_service.get_one_user(user_id=user_data.user.id)
     product = await product_service.get_one_product(id=order_data.product_id)
 
     if not product:
@@ -94,13 +102,13 @@ async def purchase_product(
     order_id = uuid.uuid4()
     await order_service.add_order(
         id=order_id,
-        user_id=order_data.user_id,
+        user_id=user.user_id,
         product_id=order_data.product_id,
         name=product.name,
         price=product.price,
         additional_data=order_data.additional_data.model_dump_json(),
     )
-    await user_service.update_user(user_id=order_data.user_id, balance=user.balance - product.price)
+    await user_service.update_user(user_id=user.user_id, balance=user.balance - product.price)
 
     try:
         bot = Bot(token=settings.BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
@@ -127,7 +135,11 @@ async def purchase_product(
 async def create_product(
     data: CreateProduct,
     product_service: FromDishka[ProductService],
+    user_data: WebAppInitData = Depends(user_provider),
 ) -> JSONResponse:
+    if not user_data.user.id in dev_config.admin.admins:
+        raise MethodNotAllowedError
+    
     await product_service.create_product(
         id=data.id,
         name=data.name,

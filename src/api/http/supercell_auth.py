@@ -1,5 +1,3 @@
-
-# from validate_email import validate_email
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 
