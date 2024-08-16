@@ -1,7 +1,7 @@
 import random
 import hashlib
 from time import time
-from typing import Mapping, Optional
+from typing import Mapping, Optional, Any
 from enum import Enum
 
 import requests
@@ -25,7 +25,7 @@ class BileeService():
     def _generate_order_id(self) -> str:
         return str(int(time()) + random.randint(1, 99999))[0:16]
     
-    def _get_signature(self, data: Mapping[str, Optional[str | int]]) -> str:
+    def _generate_signature(self, data: Mapping[str, Optional[str | int]]) -> str:
         data['password'] = self.PASSWORD
         sign = ''.join([str(data.get(key)) for key in sorted(data.keys())])
         return hashlib.sha256(sign.encode('utf-8')).hexdigest()
@@ -34,7 +34,7 @@ class BileeService():
         headers = {
             'Content-Type': 'application/json'
         }
-        data['signature'] = self._get_signature(data=data)
+        data['signature'] = self._generate_signature(data=data)
         response = requests.post(url=f'{self.API_URL}{endpoint}', json=data, headers=headers)
 
         return response.json()
@@ -58,4 +58,9 @@ class BileeService():
             'shop_id': self.SHOP_ID,
         }
         return self._request(endpoint='/payment/getOrder', data=data)
+    
+    def validate_payment(self, __input_signature: str, /, real_payment: Mapping[str, Any]) -> bool:
+        real_signature = self._generate_signature(data=real_payment)
+
+        return __input_signature == real_signature 
     

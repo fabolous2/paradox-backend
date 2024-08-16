@@ -2,6 +2,7 @@ import datetime
 from uuid import UUID
 from enum import Enum
 from dataclasses import dataclass, field
+from typing import Mapping, Any
 
 
 class TransactionType(Enum):
@@ -11,7 +12,8 @@ class TransactionType(Enum):
 
 class TransactionCause(Enum):
     DONATE = 'Донат'
-    ADMIN_REPLENISHMENT = 'Пополнение администратором'
+    ADMIN_DEPOSIT = 'Пополнение администратором'
+    ADMIN_DEBIT = 'Списание администратором'
     COUPON = 'Ввод промокода'
     REFUND = 'Возврат'
     PAYMENT = 'Оплата заказа'
@@ -26,4 +28,4 @@ class Transaction:
     cause: TransactionCause
     amount: float
     time: datetime.datetime = field(default=datetime.datetime.now(datetime.UTC))
-    
+    payment_data: Mapping[str, Any] = field(default=None)

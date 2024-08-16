@@ -14,3 +14,6 @@ class TransactionService:
     async def get_one_transaction(self, **params: Optional[Any]) -> Optional[Transaction]:
         return await self.__transaction_dal.get_one(**params)
     
+    async def add_transaction(self, **params: Optional[Any]) -> None:
+        return await self.__transaction_dal.add(**params)
+    

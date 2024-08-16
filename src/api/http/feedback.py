@@ -24,7 +24,7 @@ router = APIRouter(
 )
 
 
-@router.post("/post", response_model=JSONResponse)
+@router.post("/post", response_class=JSONResponse)
 async def post_feedback(
     data: CreateFeedback,
     feedback_service: FromDishka[FeedbackService],
@@ -61,7 +61,7 @@ async def get_one_feedback(
     return await feedback_service.get_one_feedback(id=feedback_id)
 
 
-@router.get("/remove/{feedback_id}", response_model=JSONResponse)
+@router.get("/remove/{feedback_id}", response_class=JSONResponse)
 async def remove_feedback(
     feedback_id: uuid.UUID,
     feedback_service: FromDishka[FeedbackService],

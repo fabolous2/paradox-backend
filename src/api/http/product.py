@@ -13,7 +13,7 @@ from aiogram.enums import ParseMode
 from aiogram.utils.web_app import WebAppInitData
 
 from src.schema import Product
-from src.services import ProductService, UserService, OrderService
+from src.services import ProductService, UserService, OrderService, TransactionService
 from src.api.schema.order import CreateOrderDTO
 from src.api.schema.product import CreateProduct
 from src.main.config import settings
@@ -22,6 +22,7 @@ from src.bot.app.bot.keyboards import inline
 from src.utils import json_text_getter
 from src.api.dependencies import user_provider
 from src.api.http.exceptions import MethodNotAllowedError
+from src.schema.transaction import TransactionCause, TransactionType
 
 
 _SortLiteral: TypeAlias = Literal["purchase_count", "price_lower", "price_higher"] 
@@ -80,6 +81,7 @@ async def purchase_product(
     product_service: FromDishka[ProductService],
     user_service: FromDishka[UserService],
     order_service: FromDishka[OrderService],
+    transaction_service: FromDishka[TransactionService],
     user_data: WebAppInitData = Depends(user_provider),
 ) -> JSONResponse:
     user = await user_service.get_one_user(user_id=user_data.user.id)
@@ -109,6 +111,13 @@ async def purchase_product(
         additional_data=order_data.additional_data.model_dump_json(),
     )
     await user_service.update_user(user_id=user.user_id, balance=user.balance - product.price)
+    await transaction_service.add_transaction(
+        id=uuid.uuid4(),
+        user_id=user_id,
+        type=TransactionType.DEBIT,
+        cause=TransactionCause.PAYMENT,
+        amount=product.price,
+    )
 
     try:
         bot = Bot(token=settings.BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
