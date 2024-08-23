@@ -1,7 +1,7 @@
 import uuid
 from typing import Optional
 
-from sqlalchemy import UUID, String, DECIMAL, Integer
+from sqlalchemy import UUID, String, DECIMAL, Integer, Index, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.data.models import Base
@@ -18,6 +18,19 @@ class ProductModel(Base):
     purchase_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     game: Mapped[str] = mapped_column(String, nullable=True)
     category: Mapped[str] = mapped_column(String, nullable=True)
+
+    index = Index(
+        'product_name_game_category_index',
+        (
+            func.coalesce(name, '')
+            .concat(func.coalesce(game, '')
+            .concat(func.coalesce(category, ''))).label('columns')
+        ),
+        postgresql_using='gin',
+        postgresql_ops={
+            'columns': 'gin_trgm_ops',
+        },
+    )
 
     orders = relationship('OrderModel', back_populates='product')
     feedbacks = relationship('FeedbackModel', back_populates='product')

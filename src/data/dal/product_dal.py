@@ -2,7 +2,7 @@ from typing import Optional, TypeAlias, List, Any
 from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import insert, update, select, exists, delete, Result
+from sqlalchemy import insert, update, select, exists, delete, Result, func
 
 from src.schema import Product
 from src.data.models import ProductModel
@@ -26,6 +26,7 @@ class ProductDAL:
         await self.session.commit()
 
     async def exists(self, **kwargs: Optional[Any]) -> bool:
+        query = select(exists(ProductModel))
         if kwargs:
             query = select(
                 exists().where(
@@ -36,12 +37,11 @@ class ProductDAL:
                     )
                 )
             )
-        query = select(exists(ProductModel))
         result = await self.session.execute(query)
         return result.scalar_one()
 
-    async def is_column_filled(self, user_id: int, *column_names: str) -> bool:
-        user_exists = await self.exists(user_id=user_id)
+    async def is_column_filled(self, id: int, *column_names: str) -> bool:
+        user_exists = await self.exists(id=id)
         if not user_exists:
             return False
 
@@ -51,7 +51,7 @@ class ProductDAL:
                 for column_name in column_names
                 if hasattr(ProductModel, column_name)
             )
-        ).where(ProductModel.user_id == user_id)
+        ).where(ProductModel.id == id)
 
         result = await self.session.execute(query)
         column_value = result.scalar_one_or_none()
@@ -62,9 +62,9 @@ class ProductDAL:
         if not exists:
             return None
 
+        query = select(ProductModel)
         if kwargs:
             query = select(ProductModel).filter_by(**kwargs)
-        query = select(ProductModel)
 
         result = await self.session.execute(query)
         return result
@@ -81,6 +81,8 @@ class ProductDAL:
                 price=db_product.price,
                 instruction=db_product.instruction,
                 purchase_count=db_product.purchase_count,
+                game=db_product.game,
+                category=db_product.category,
             )
 
     async def get_all(self, **kwargs: Optional[Any]) -> Optional[List[Product]]:
@@ -96,6 +98,8 @@ class ProductDAL:
                     price=db_product.price,
                     instruction=db_product.instruction,
                     purchase_count=db_product.purchase_count,
+                    game=db_product.game,
+                    category=db_product.category,
             )
                 for db_product in db_products
             ]
@@ -104,3 +108,39 @@ class ProductDAL:
         query = delete(ProductModel).filter_by(**kwargs)
         await self.session.execute(query)
         await self.session.commit()
+
+    async def search(self, search_name: str) -> Optional[List[Product]]:
+        columns = (
+            func.coalesce(ProductModel.name, '')
+            .concat(func.coalesce(ProductModel.game, '')
+                    .concat(func.coalesce(ProductModel.category, '')))
+        )
+        columns = columns.self_group()
+
+        query = (select(
+            ProductModel,
+            func.similarity(columns, search_name),
+        )
+        .where(
+            columns.bool_op('%')(search_name),
+        )
+        .order_by(
+            func.similarity(columns, search_name).desc(),
+        ))
+
+        res = await self.session.execute(query)
+        products = res.scalars().all()
+
+        return [
+            Product(
+                id=db_product.id,
+                name=db_product.name,
+                description=db_product.description,
+                price=db_product.price,
+                instruction=db_product.instruction,
+                purchase_count=db_product.purchase_count,
+                game=db_product.game,
+                category=db_product.category,
+            )
+            for db_product in products
+        ]

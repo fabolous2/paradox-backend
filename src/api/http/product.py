@@ -34,12 +34,23 @@ router = APIRouter(
 )
 
 
+@router.get('/search')
+async def search_products(
+    search: str,
+    product_service: FromDishka[ProductService],
+    # user_data: WebAppInitData = Depends(user_provider),
+) -> List[Product] | None:
+    response = await product_service.search(search)
+
+    return response
+
+
 @router.get('/', response_model=List[Product])
 async def get_products(
     product_service: FromDishka[ProductService],
     sort: _SortLiteral,
     user_data: WebAppInitData = Depends(user_provider),
-) -> List[Product]:
+) -> List[Product] | JSONResponse:
     products = await product_service.get_products()
 
     if products:
@@ -64,7 +75,7 @@ async def get_products(
     product_id: int,
     product_service: FromDishka[ProductService],
     user_data: WebAppInitData = Depends(user_provider),
-) -> Product:
+) -> Product | JSONResponse:
     product = await product_service.get_one_product(id=product_id)
     if not product:
         return JSONResponse(
@@ -113,7 +124,7 @@ async def purchase_product(
     await user_service.update_user(user_id=user.user_id, balance=user.balance - product.price)
     await transaction_service.add_transaction(
         id=uuid.uuid4(),
-        user_id=user_id,
+        user_id=user.user_id,
         type=TransactionType.DEBIT,
         cause=TransactionCause.PAYMENT,
         amount=product.price,
@@ -131,7 +142,7 @@ async def purchase_product(
                     order_data=order_data,
                     product=product,
                 ),
-                reply_markup=inline.order_confirmation_kb_markup(user_id=order_data.user_id)
+                reply_markup=inline.order_confirmation_kb_markup(order_id=order_id)
             )
             return JSONResponse(status_code=200, content=dict(message="success"))
     except Exception as ex:
@@ -144,11 +155,11 @@ async def purchase_product(
 async def create_product(
     data: CreateProduct,
     product_service: FromDishka[ProductService],
-    user_data: WebAppInitData = Depends(user_provider),
+    # user_data: WebAppInitData = Depends(user_provider),
 ) -> JSONResponse:
-    if not user_data.user.id in dev_config.admin.admins:
-        raise MethodNotAllowedError
-    
+    # if not user_data.user.id in dev_config.admin.admins:
+    #     raise MethodNotAllowedError
+    #
     await product_service.create_product(
         id=data.id,
         name=data.name,
@@ -156,6 +167,8 @@ async def create_product(
         price=data.price,
         instruction=data.instruction,
         purchase_count=data.purchase_count,
+        game=data.game,
+        category=data.category,
     )
 
     return JSONResponse(status_code=200, content=dict(message='success'))
