@@ -2,7 +2,7 @@ from typing import Optional, TypeAlias, List, Any
 from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import insert, update, select, exists, delete, Result, func
+from sqlalchemy import insert, update, select, exists, delete, Result, func, or_
 
 from src.schema import Product
 from src.data.models import ProductModel
@@ -76,12 +76,14 @@ class ProductDAL:
             db_product = res.scalar_one_or_none()
             return Product(
                 id=db_product.id,
+                game_id=db_product.game_id,
                 name=db_product.name,
                 description=db_product.description,
                 price=db_product.price,
                 instruction=db_product.instruction,
                 purchase_count=db_product.purchase_count,
-                game=db_product.game,
+                image_url=db_product.image_url,
+                game_name=db_product.game_name,
                 category=db_product.category,
             )
 
@@ -94,13 +96,15 @@ class ProductDAL:
                 Product(
                     id=db_product.id,
                     name=db_product.name,
+                    game_id=db_product.game_id,
                     description=db_product.description,
                     price=db_product.price,
                     instruction=db_product.instruction,
                     purchase_count=db_product.purchase_count,
-                    game=db_product.game,
+                    game_name=db_product.game_name,
+                    image_url=db_product.image_url,
                     category=db_product.category,
-            )
+                )
                 for db_product in db_products
             ]
 
@@ -109,24 +113,16 @@ class ProductDAL:
         await self.session.execute(query)
         await self.session.commit()
 
-    async def search(self, search_name: str) -> Optional[List[Product]]:
-        columns = (
-            func.coalesce(ProductModel.name, '')
-            .concat(func.coalesce(ProductModel.game, '')
-                    .concat(func.coalesce(ProductModel.category, '')))
-        )
-        columns = columns.self_group()
-
-        query = (select(
-            ProductModel,
-            func.similarity(columns, search_name),
-        )
-        .where(
-            columns.bool_op('%')(search_name),
-        )
-        .order_by(
-            func.similarity(columns, search_name).desc(),
-        ))
+    async def search(self, search_name: str) -> Optional[List[Product]]:    
+        search_term = f"%{search_name.lower()}%"
+        query = (select(ProductModel)
+            .where(or_(
+            func.lower(ProductModel.name).like(search_term),
+            func.lower(ProductModel.game_name).like(search_term),
+            func.lower(ProductModel.category).like(search_term),
+            func.lower(ProductModel.description).like(search_term),
+            func.lower(ProductModel.instruction).like(search_term)
+        )))
 
         res = await self.session.execute(query)
         products = res.scalars().all()
@@ -134,13 +130,15 @@ class ProductDAL:
         return [
             Product(
                 id=db_product.id,
+                game_id=db_product.game_id,
                 name=db_product.name,
                 description=db_product.description,
                 price=db_product.price,
                 instruction=db_product.instruction,
                 purchase_count=db_product.purchase_count,
-                game=db_product.game,
+                game_name=db_product.game_name,
                 category=db_product.category,
+                image_url=db_product.image_url,
             )
             for db_product in products
         ]

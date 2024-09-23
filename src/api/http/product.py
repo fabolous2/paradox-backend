@@ -1,5 +1,5 @@
 import uuid
-from typing import Literal, TypeAlias, List
+from typing import Literal, TypeAlias, List, Optional
 
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
@@ -21,7 +21,6 @@ from src.bot.app.main.config import dev_config
 from src.bot.app.bot.keyboards import inline
 from src.utils import json_text_getter
 from src.api.dependencies import user_provider
-from src.api.http.exceptions import MethodNotAllowedError
 from src.schema.transaction import TransactionCause, TransactionType
 
 
@@ -37,8 +36,7 @@ router = APIRouter(
 @router.get('/search')
 async def search_products(
     search: str,
-    product_service: FromDishka[ProductService],
-    # user_data: WebAppInitData = Depends(user_provider),
+    product_service: FromDishka[ProductService]
 ) -> List[Product] | None:
     response = await product_service.search(search)
 
@@ -47,12 +45,20 @@ async def search_products(
 
 @router.get('/', response_model=List[Product])
 async def get_products(
-    product_service: FromDishka[ProductService],
     sort: _SortLiteral,
-    user_data: WebAppInitData = Depends(user_provider),
+    product_service: FromDishka[ProductService],
+    game_id: Optional[int] = None,
 ) -> List[Product] | JSONResponse:
-    products = await product_service.get_products()
+    if game_id:
+        products = await product_service.get_products(game_id=game_id)
+    else:
+        products = await product_service.get_products()
 
+    if not products:
+        return JSONResponse(
+            status_code=404,
+            content='Products not found.',
+        )
     if products:
         match sort:
             case 'purchase_count':
@@ -71,17 +77,11 @@ async def get_products(
 
 
 @router.get('/{product_id}', response_model=Product)
-async def get_products(
-    product_id: int,
+async def get_one_product(
+    product_id: uuid.UUID,
     product_service: FromDishka[ProductService],
-    user_data: WebAppInitData = Depends(user_provider),
-) -> Product | JSONResponse:
+) -> Optional[Product]:
     product = await product_service.get_one_product(id=product_id)
-    if not product:
-        return JSONResponse(
-            status_code=404,
-            content='Product not found.',
-        )
     
     return product
 
@@ -163,12 +163,14 @@ async def create_product(
     await product_service.create_product(
         id=data.id,
         name=data.name,
+        game_id=data.game_id,
         description=data.description,
         price=data.price,
         instruction=data.instruction,
         purchase_count=data.purchase_count,
-        game=data.game,
+        game_name=data.game_name,
         category=data.category,
+        image_url=data.image_url,
     )
 
     return JSONResponse(status_code=200, content=dict(message='success'))

@@ -78,10 +78,10 @@ class PromoDAL:
         return result
 
     async def get_one(self, **kwargs: Optional[Any]) -> Optional[Promo]:
-        res = await self._get(**kwargs)
-
-        if res:
-            db_promo = res.scalar_one_or_none()
+        query = select(PromoModel).filter_by(**kwargs)
+        result = await self.session.execute(query)
+        db_promo = result.scalar_one_or_none()
+        if db_promo:
             return Promo(
                 id=db_promo.id,
                 name=db_promo.name,
@@ -89,6 +89,7 @@ class PromoDAL:
                 uses=db_promo.uses,
                 status=db_promo.status,
             )
+        return None
 
     async def get_all(self, **kwargs: Optional[Any]) -> Optional[List[Promo]]:
         res = await self._get(**kwargs)

@@ -10,5 +10,4 @@ class FeedbackProduct(BaseModel):
 class CreateFeedback(BaseModel):
     product: FeedbackProduct
     stars: int = Field(le=5)
-    text: str = Field(le=500)
-
+    text: str = Field(max_length=500)

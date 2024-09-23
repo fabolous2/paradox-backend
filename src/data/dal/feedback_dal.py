@@ -19,8 +19,8 @@ class FeedbackDAL:
         await self.session.execute(query)
         await self.session.commit()
 
-    async def update(self, user_id: int, **kwargs) -> None:
-        query = update(FeedbackModel).where(FeedbackModel.user_id == user_id).values(**kwargs)
+    async def update(self, id: int, **kwargs) -> None:
+        query = update(FeedbackModel).where(FeedbackModel.id == id).values(**kwargs)
         await self.session.execute(query)
         await self.session.commit()
 
@@ -63,7 +63,8 @@ class FeedbackDAL:
 
         if kwargs:
             query = select(FeedbackModel).filter_by(**kwargs)
-        query = select(FeedbackModel)
+        else:
+            query = select(FeedbackModel)
 
         result = await self.session.execute(query)
         return result

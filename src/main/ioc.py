@@ -14,6 +14,7 @@ from src.services import (
     SupercellAuthService,
     FeedbackService,
     BileeService,
+    GameService,
 )
 from src.data.dal import (
     UserDAL,
@@ -21,7 +22,8 @@ from src.data.dal import (
     TransactionDAL,
     OrderDAL,
     PromoDAL,
-    FeedbackDAL
+    FeedbackDAL,
+    GameDAL,
 )
 
 
@@ -47,6 +49,7 @@ class DALProvider(Provider):
     order_dal = provide(OrderDAL, scope=Scope.REQUEST, provides=OrderDAL)
     promo_dal = provide(PromoDAL, scope=Scope.REQUEST, provides=PromoDAL)
     feedback_dal = provide(FeedbackDAL, scope=Scope.REQUEST, provides=FeedbackDAL)
+    game_dal = provide(GameDAL, scope=Scope.REQUEST, provides=GameDAL)
 
 
 class ServiceProvider(Provider):
@@ -58,4 +61,4 @@ class ServiceProvider(Provider):
     supercell_service = provide(SupercellAuthService, scope=Scope.REQUEST, provides=SupercellAuthService)
     feedback_service = provide(FeedbackService, scope=Scope.REQUEST, provides=FeedbackService)
     bilee_service = provide(BileeService, scope=Scope.REQUEST, provides=BileeService)
-    
+    game_service = provide(GameService, scope=Scope.REQUEST, provides=GameService)

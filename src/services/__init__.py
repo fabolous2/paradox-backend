@@ -6,6 +6,7 @@ from .promo_service import PromoService
 from .supercell_auth_service import SupercellAuthService
 from .feedback_service import FeedbackService
 from .bilee_service import BileeService
+from .game_service import GameService
 
 __all__ = [
     'ProductService',
@@ -15,5 +16,6 @@ __all__ = [
     'PromoService',
     'SupercellAuthService',
     'FeedbackService',
-    'BileeService'
+    'BileeService',
+    'GameService',
 ]

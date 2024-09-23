@@ -63,14 +63,14 @@ class TransactionDAL:
 
         if kwargs:
             query = select(TransactionModel).filter_by(**kwargs)
-        query = select(TransactionModel)
+        else:
+            query = select(TransactionModel)
 
         result = await self.session.execute(query)
         return result
 
     async def get_one(self, **kwargs: Optional[Any]) -> Optional[Transaction]:
-        res = await self._get(**kwargs)
-
+        res = await self.session.execute(select(TransactionModel).filter_by(**kwargs))
         if res:
             db_transaction = res.scalar_one_or_none()
             return Transaction(
@@ -80,8 +80,10 @@ class TransactionDAL:
                 cause=db_transaction.cause,
                 amount=db_transaction.amount,
                 time=db_transaction.time,
+                payment_data=db_transaction.payment_data,
+                is_successful=db_transaction.is_successful,
             )
-
+                
     async def get_all(self, **kwargs: Optional[Any]) -> Optional[List[Transaction]]:
         res = await self._get(**kwargs)
 
@@ -95,6 +97,8 @@ class TransactionDAL:
                     cause=db_transaction.cause,
                     amount=db_transaction.amount,
                     time=db_transaction.time,
+                    payment_data=db_transaction.payment_data,
+                    is_successful=db_transaction.is_successful,
                 )
                 for db_transaction in db_transactions
             ]

@@ -27,5 +27,6 @@ class Transaction:
     type: TransactionType
     cause: TransactionCause
     amount: float
+    is_successful: bool = field(default=False)
     time: datetime.datetime = field(default=datetime.datetime.now(datetime.UTC))
     payment_data: Mapping[str, Any] = field(default=None)

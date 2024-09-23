@@ -2,8 +2,7 @@ from fastapi import FastAPI, Request, status
 from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import ValidationException
 from fastapi.responses import JSONResponse
-
-from sqlalchemy.exc import DBAPIError
+from fastapi.middleware.cors import CORSMiddleware
 
 from dishka import make_async_container
 from dishka.integrations.fastapi import setup_dishka
@@ -16,11 +15,26 @@ from src.api.http import (
     supercell_auth,
     feedback,
     payment_system,
+    game,
 )
 from src.main.ioc import DALProvider, DatabaseProvider, ServiceProvider
 
 
 app = FastAPI()
+
+origins = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+    expose_headers=["*"],
+)
 
 
 @app.exception_handler(ValidationException)
@@ -46,6 +60,7 @@ app.include_router(referral_system.router)
 app.include_router(supercell_auth.router)
 app.include_router(feedback.router)
 app.include_router(payment_system.router)
+app.include_router(game.router)
 
 container = make_async_container(DALProvider(), DatabaseProvider(), ServiceProvider())
 setup_dishka(container, app)

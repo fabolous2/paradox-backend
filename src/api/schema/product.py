@@ -10,7 +10,9 @@ class CreateProduct(BaseModel):
     name: str
     description: str
     price: Decimal
+    game_id: int
+    game_name: Optional[str]
+    image_url: Optional[str]
     instruction: Optional[str] = Field(default=None)
     purchase_count: Optional[int] = Field(default=0)
-    game: Optional[str] = Field(default=None)
     category: Optional[str] = Field(default=None)

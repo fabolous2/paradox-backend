@@ -21,31 +21,29 @@ router = APIRouter(
     route_class=DishkaRoute,
 )
 
-
+ 
 @router.post('/')
 async def top_up(
     data: TopUpSchema,
     bilee_service: FromDishka[BileeService],
     transaction_service: FromDishka[TransactionService],
     # user_data: WebAppInitData = Depends(user_provider),
-) -> JSONResponse:
+) -> dict:
     response = bilee_service.create_invoice(amount=data.amount, method=data.method.value)
 
     if response.get('success') is True:
+        payment_data = response['payment']
+        payment_data['url'] = response['url']
         await transaction_service.add_transaction(
-            id=response['payment']['uuid'],
+            id=payment_data['uuid'],
             user_id=6384960822,
             type=TransactionType.DEPOSIT,
             cause=TransactionCause.DONATE,
-            amount=response['payment']['amount'],
-            payment_data=response['payment']
+            amount=payment_data['amount'],
+            payment_data=payment_data
         )
 
-    return JSONResponse(
-        status_code=200,
-        content=dict(response=response),
-    )
-
+    return response
 
 @router.post("/webhook", response_class=JSONResponse)
 async def receive_payment(

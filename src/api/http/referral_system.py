@@ -21,6 +21,18 @@ router = APIRouter(
 )
 
 
+@router.get("/check_code_availability")
+async def check_code(
+    referral_code: str,
+    user_service: FromDishka[UserService],
+) -> JSONResponse:
+    user = await user_service.get_one_user(referral_code=referral_code)
+    if not user:
+        return JSONResponse(status_code=200, content=dict(description='Code is available'))
+    else:
+        return JSONResponse(status_code=400, content=dict(description='Code is already taken'))
+
+
 @router.get("/get_code", response_model=ReferralCode)
 async def get_referral_code(
     user_service: FromDishka[UserService],
@@ -35,23 +47,19 @@ async def get_referral_code(
     return ReferralCode(code=user.referral_code, referral_url=referral_url)
 
 
-@router.post("/set_code", response_model=ReferralCode)
+@router.post("/set_code")
 async def set_code(
     referral_code: NewReferralCode,
     user_service: FromDishka[UserService],
-    user_data: WebAppInitData = Depends(user_provider),
-) -> Union[JSONResponse, ReferralCode]:
-    user = await user_service.get_one_user(user_id=user_data.user.id)
+    # user_data: WebAppInitData = Depends(user_provider),
+) -> ReferralCode:
+    user = await user_service.get_one_user(user_id=6384960822)
     if not user:
         return JSONResponse(status_code=404, content=dict(description='User not found'))
     elif user.referral_code == referral_code:
         return JSONResponse(status_code=400, content=dict(description='This referral code already in use by user.'))
     
-    try:
-        await user_service.update_user(user_id=user_data.user.id, referral_code=referral_code)
-        referral_url = settings.get_referral_url(referral_code)
+    await user_service.update_user(user_id=6384960822, referral_code=referral_code.referral_code)
+    referral_url = settings.referral_url(referral_code)
 
-        return ReferralCode(code=user.referral_code, referral_url=referral_url)
-    except Exception as ex:
-        print(ex)
-        return JSONResponse(status_code=400, content=dict(detail='Probably this referral code is already taken'))
+    return ReferralCode(code=user.referral_code, referral_url=referral_url)

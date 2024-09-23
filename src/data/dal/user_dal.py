@@ -74,6 +74,8 @@ class UserDAL:
                 referral_id=db_user.referral_id,
                 balance=db_user.balance,
                 used_coupons=db_user.used_coupons,
+                nickname=db_user.nickname,
+                profile_photo=db_user.profile_photo,
             )
 
     async def get_all(self, **kwargs) -> Optional[List[User]]:
@@ -88,6 +90,8 @@ class UserDAL:
                     referral_id=db_user.referral_id,
                     balance=db_user.balance,
                     used_coupons=db_user.used_coupons,
+                    nickname=db_user.nickname,
+                    profile_photo=db_user.profile_photo,
                 )
                 for db_user in db_users
             ]

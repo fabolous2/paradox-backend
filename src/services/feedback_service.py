@@ -22,4 +22,4 @@ class FeedbackService:
         await self.__feedback_dal.update(id=feedback_id, **values)
 
     async def delete_feedback(self, feedback_id: uuid.UUID) -> None:
-            await self.__feedback_dal.update(feedback_id=feedback_id, is_active=False)
+            await self.__feedback_dal.update(id=feedback_id, is_active=False)
