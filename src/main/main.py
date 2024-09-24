@@ -26,7 +26,8 @@ origins = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
     "http://62.76.233.156:3000",
-    "https://paradox-shop.ru"
+    "https://paradox-shop.ru",
+    "https://www.paradox-shop.ru"
 ]
 
 app.add_middleware(
