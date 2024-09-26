@@ -29,7 +29,11 @@ origins = [
     "https://paradox-shop.ru",
     "https://www.paradox-shop.ru",
     "http://paradox-shop.ru",
-    "http://www.paradox-shop.ru"
+    "http://www.paradox-shop.ru",
+    "https://api.paradox-shop.ru",
+    "https://www.api.paradox-shop.ru",
+    "http://api.paradox-shop.ru",
+    "http://www.api.paradox-shop.ru",
 ]
 
 app.add_middleware(
