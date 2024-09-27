@@ -52,33 +52,39 @@ async def receive_payment(
     transaction_service: FromDishka[TransactionService],
     user_service: FromDishka[UserService],
 ) -> JSONResponse:
-    print(request)
-    payment_id = request.get('uuid')
-    if not payment_id:
-        raise InvalidPaymentError
-    
-    payment = await transaction_service.get_one_transaction(id=payment_id)
-    is_valid = bilee_service.validate_payment(
-        request.get('signature'),
-        payment.payment_data,
-    )
-    if not is_valid:
-        raise InvalidPaymentError
-    
-    user = await user_service.get_one_user(user_id=payment.user_id)
-    top_up_amount = request.get('amount')
-    await user_service.update_user(user_id=user.user_id, balance=user.balance + top_up_amount)
+    try:
+        payload = await request.json()
+        signature = request.headers.get('X-Bilee-Signature')
+        payment_id = payload.get('uuid')
+        if not payment_id:
+            return JSONResponse(status_code=400, content={"error": "Missing payment ID"})
 
-    if user.referral_id:
-        referral = await user_service.get_one_user(user_id=user.referral_id)
-        reff_top_up_amount = round(top_up_amount) * 0.02
-        await user_service.update_user(user_id=user.referral_id, balance=referral.balance + reff_top_up_amount)
-        await transaction_service.add_transaction(
-            id=uuid.uuid4(),
-            user_id=referral.user_id,
-            type=TransactionType.DEPOSIT,
-            cause=TransactionCause.REFERRAL,
-            amount=reff_top_up_amount,
-        )
+        payment = await transaction_service.get_one_transaction(id=payment_id)
+        if not payment:
+            return JSONResponse(status_code=400, content={"error": "Payment not found"})
+        
+        is_valid = bilee_service.validate_payment(signature, payment.payment_data)
+        if not is_valid:
+            return JSONResponse(status_code=400, content={"error": "Invalid signature"})
 
-    return JSONResponse(status_code=200, content=dict(details={"success": True}))
+
+        user = await user_service.get_one_user(user_id=payment.user_id)
+        top_up_amount = payload.get('amount')
+        await user_service.update_user(user_id=user.user_id, balance=user.balance + top_up_amount)
+
+        if user.referral_id:
+            referral = await user_service.get_one_user(user_id=user.referral_id)
+            reff_top_up_amount = round(top_up_amount * 0.02, 2)
+            await user_service.update_user(user_id=user.referral_id, balance=referral.balance + reff_top_up_amount)
+            await transaction_service.add_transaction(
+                id=uuid.uuid4(),
+                user_id=referral.user_id,
+                type=TransactionType.DEPOSIT,
+                cause=TransactionCause.REFERRAL,
+                amount=reff_top_up_amount,
+            )
+
+        return JSONResponse(status_code=200, content={"success": True})
+
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"error": str(e)})
