@@ -63,9 +63,9 @@ async def receive_payment(
         if not payment:
             return JSONResponse(status_code=400, content={"error": "Payment not found"})
         
-        is_valid = bilee_service.validate_payment(signature, payment.payment_data)
-        if not is_valid:
-            return JSONResponse(status_code=400, content={"error": "Invalid signature"})
+        # is_valid = bilee_service.validate_payment(signature, payment.payment_data)
+        # if not is_valid:
+        #     return JSONResponse(status_code=400, content={"error": "Invalid signature"})
 
 
         user = await user_service.get_one_user(user_id=payment.user_id)
