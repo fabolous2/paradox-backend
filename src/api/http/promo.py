@@ -28,7 +28,6 @@ router = APIRouter(
 async def get_promo(
     name: str,
     promo_service: FromDishka[PromoService],
-    # user_data: WebAppInitData = Depends(user_provider),
 ) -> Optional[Promo]:
     promo = await promo_service.get_one_promo(name=name)
  
@@ -39,9 +38,9 @@ async def get_promo(
 async def check_used(
     name: str,
     user_service: FromDishka[UserService],
-    # user_data: WebAppInitData = Depends(user_provider),
+    user_data: WebAppInitData = Depends(user_provider),
 ) -> JSONResponse:
-    user = await user_service.get_one_user(user_id=6384960822)
+    user = await user_service.get_one_user(user_id=user_data.user.id)
     if user.used_coupons and name in user.used_coupons.get('coupons'):
         return JSONResponse(status_code=403, content='User already has used this promo')
  
@@ -54,13 +53,13 @@ async def use_promo(
     promo_service: FromDishka[PromoService],
     user_service: FromDishka[UserService],
     transaction_service: FromDishka[TransactionService],
-    # user_data: WebAppInitData = Depends(user_provider),
+    user_data: WebAppInitData = Depends(user_provider),
 ) -> JSONResponse:
     promo = await promo_service.get_one_promo(name=raw_promo.name)
     if not promo:
         return JSONResponse(status_code=404, content='Promo not found')
 
-    user = await user_service.get_one_user(user_id=6384960822)
+    user = await user_service.get_one_user(user_id=user_data.user.id)
     used_coupons = user.used_coupons
     if used_coupons and raw_promo.name in used_coupons.get('coupons'):
         return JSONResponse(status_code=403, content='User already has used this promo')
@@ -70,10 +69,10 @@ async def use_promo(
     else:
         used_coupons = {'coupons': [raw_promo.name]}
         
-    await user_service.update_user(user_id=6384960822, used_coupons=used_coupons)
+    await user_service.update_user(user_id=user_data.user.id, used_coupons=used_coupons)
     await transaction_service.add_transaction(
         id=uuid.uuid4(),
-        user_id=6384960822,
+        user_id=user_data.user.id,
         type=TransactionType.DEPOSIT,
         cause=TransactionCause.COUPON,
         amount=promo.bonus_amount,

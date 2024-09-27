@@ -12,6 +12,7 @@ from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.utils.web_app import WebAppInitData
 
+from src.api.http.exceptions.user import MethodNotAllowedError
 from src.schema import Product
 from src.services import ProductService, UserService, OrderService, TransactionService
 from src.api.schema.order import CreateOrderDTO
@@ -23,8 +24,6 @@ from src.utils import json_text_getter
 from src.api.dependencies import user_provider
 from src.schema.transaction import TransactionCause, TransactionType
 
-
-_SortLiteral: TypeAlias = Literal["purchase_count", "price_lower", "price_higher"] 
 
 router = APIRouter(
     prefix="/products",
@@ -45,7 +44,6 @@ async def search_products(
 
 @router.get('/', response_model=List[Product])
 async def get_products(
-    sort: _SortLiteral,
     product_service: FromDishka[ProductService],
     game_id: Optional[int] = None,
 ) -> List[Product] | JSONResponse:
@@ -59,19 +57,6 @@ async def get_products(
             status_code=404,
             content='Products not found.',
         )
-    if products:
-        match sort:
-            case 'purchase_count':
-                products.sort(key=lambda product: product.purchase_count, reverse=True)
-            case 'price_higher':
-                products.sort(key=lambda product: product.price)
-            case 'price_lower':
-                products.sort(key=lambda product: product.price, reverse=True)
-            case _:
-                return JSONResponse(
-                    status_code=400,
-                    content="`sort` param doesn't match any available options. Available options: 'purchase_count', 'price_higher', 'price_lower'"
-                )
 
     return products
 
@@ -155,11 +140,11 @@ async def purchase_product(
 async def create_product(
     data: CreateProduct,
     product_service: FromDishka[ProductService],
-    # user_data: WebAppInitData = Depends(user_provider),
+    user_data: WebAppInitData = Depends(user_provider),
 ) -> JSONResponse:
-    # if not user_data.user.id in dev_config.admin.admins:
-    #     raise MethodNotAllowedError
-    #
+    if not user_data.user.id in dev_config.admin.admins:
+        raise MethodNotAllowedError
+    
     await product_service.create_product(
         id=data.id,
         name=data.name,

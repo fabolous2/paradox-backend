@@ -28,12 +28,12 @@ router = APIRouter(
 async def post_feedback(
     data: CreateFeedback,
     feedback_service: FromDishka[FeedbackService],
-    # user_data: WebAppInitData = Depends(user_provider),
+    user_data: WebAppInitData = Depends(user_provider),
 ) -> JSONResponse:
     await feedback_service.add_feedback(
         id=uuid.uuid4(),
         product_id=data.product.id,
-        user_id=5297779345,
+        user_id=user_data.user.id,
         text=data.text,
         stars=data.stars,
     )
@@ -49,7 +49,6 @@ async def get_feedbacks(
     feedback_service: FromDishka[FeedbackService],
 ) -> List[Feedback]:
     response = await feedback_service.get_feedbacks(is_active=True)
-    print(response)
     return response
 
 
@@ -65,18 +64,19 @@ async def get_one_feedback(
 async def is_user_posted_feedback(
     product_id: uuid.UUID,
     feedback_service: FromDishka[FeedbackService],
+    user_data: WebAppInitData = Depends(user_provider),
 ) -> Feedback:
-    return await feedback_service.get_one_feedback(user_id=5297779345, product_id=product_id)
+    return await feedback_service.get_one_feedback(user_id=user_data.user.id, product_id=product_id)
 
 
 @router.get("/remove/{feedback_id}", response_class=JSONResponse)
 async def remove_feedback(
     feedback_id: uuid.UUID,
     feedback_service: FromDishka[FeedbackService],
-    # user_data: WebAppInitData = Depends(user_provider),
+    user_data: WebAppInitData = Depends(user_provider),
 ) -> JSONResponse:
-    # if not user_data.user.id in dev_config.admin.admins:
-    #     raise MethodNotAllowedError
+    if not user_data.user.id in dev_config.admin.admins:
+        raise MethodNotAllowedError
 
     await feedback_service.delete_feedback(feedback_id=feedback_id)
 
@@ -84,4 +84,3 @@ async def remove_feedback(
         status_code=200,
         content=dict(detail='success')
     )
-    

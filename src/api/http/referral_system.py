@@ -51,15 +51,15 @@ async def get_referral_code(
 async def set_code(
     referral_code: NewReferralCode,
     user_service: FromDishka[UserService],
-    # user_data: WebAppInitData = Depends(user_provider),
+    user_data: WebAppInitData = Depends(user_provider),
 ) -> ReferralCode:
-    user = await user_service.get_one_user(user_id=6384960822)
+    user = await user_service.get_one_user(user_id=user_data.user.id)
     if not user:
         return JSONResponse(status_code=404, content=dict(description='User not found'))
     elif user.referral_code == referral_code:
         return JSONResponse(status_code=400, content=dict(description='This referral code already in use by user.'))
     
-    await user_service.update_user(user_id=6384960822, referral_code=referral_code.referral_code)
+    await user_service.update_user(user_id=user_data.user.id, referral_code=referral_code.referral_code)
     referral_url = settings.referral_url(referral_code)
 
     return ReferralCode(code=user.referral_code, referral_url=referral_url)
