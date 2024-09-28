@@ -1,3 +1,4 @@
+import uuid
 from typing import Optional, Any, List
 
 from src.data.dal import TransactionDAL
@@ -16,4 +17,6 @@ class TransactionService:
     
     async def add_transaction(self, **params: Optional[Any]) -> None:
         return await self.__transaction_dal.add(**params)
-    
+
+    async def update_transaction(self, id: uuid.UUID, **params: Optional[Any]) -> None:
+        return await self.__transaction_dal.update(id=id, **params)
