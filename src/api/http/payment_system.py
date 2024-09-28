@@ -68,31 +68,26 @@ async def receive_payment(
 
         try:
             bot = Bot(token=settings.BOT_TOKEN)
-            await bot.send_message(user.user_id, f"✅ Баланс пополнен на {top_up_amount} рублей")
+            await bot.send_message(chat_id=user.user_id, text=f"✅ Баланс пополнен на {top_up_amount} рублей")
+
+            if user.referral_id:
+                referral = await user_service.get_one_user(user_id=user.referral_id)
+                reff_top_up_amount = round(top_up_amount * 0.02, 2)
+                await user_service.update_user(user_id=user.referral_id, balance=referral.balance + reff_top_up_amount)
+                await transaction_service.add_transaction(
+                    id=uuid.uuid4(),
+                    user_id=referral.user_id,
+                    type=TransactionType.DEPOSIT,
+                    cause=TransactionCause.REFERRAL,
+                    amount=reff_top_up_amount,
+                    is_successful=True,
+                )
+                bot = Bot(token=settings.BOT_TOKEN)
+                await bot.send_message(chat_id=user.user_id, text=f"✅ Баланс пополнен на {reff_top_up_amount} рублей")
         except Exception as e:
             pass
         finally:
-            await bot.close()
-
-        if user.referral_id:
-            referral = await user_service.get_one_user(user_id=user.referral_id)
-            reff_top_up_amount = round(top_up_amount * 0.02, 2)
-            await user_service.update_user(user_id=user.referral_id, balance=referral.balance + reff_top_up_amount)
-            await transaction_service.add_transaction(
-                id=uuid.uuid4(),
-                user_id=referral.user_id,
-                type=TransactionType.DEPOSIT,
-                cause=TransactionCause.REFERRAL,
-                amount=reff_top_up_amount,
-                is_successful=True,
-            )
-            try:
-                bot = Bot(token=settings.BOT_TOKEN)
-                await bot.send_message(user.user_id, f"✅ Баланс пополнен на {reff_top_up_amount} рублей")
-            except Exception as e:
-                pass
-            finally:
-                await bot.close()
+            await bot.session.close()
 
         return JSONResponse(status_code=200, content={"success": True})
 
