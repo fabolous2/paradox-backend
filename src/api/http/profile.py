@@ -50,12 +50,9 @@ async def get_one_order(
     order_service: FromDishka[OrderService],
     user_data: WebAppInitData = Depends(user_provider),
 ) -> Optional[Order]:
-    order = await order_service.get_one_order(
-        user_id=user_data.user.id,
-        id=order_id,
-    )
+    order = await order_service.get_one_order(id=order_id)
     return order
-   
+
 
 @router.get("/transactions", response_model=List[Transaction])
 async def get_user_transactions(
