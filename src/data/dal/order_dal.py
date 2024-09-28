@@ -64,7 +64,8 @@ class OrderDAL:
 
         if kwargs:
             query = select(OrderModel).filter_by(**kwargs)
-        query = select(OrderModel)
+        else:
+            query = select(OrderModel)
 
         result = await self.session.execute(query)
         return result
