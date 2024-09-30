@@ -123,6 +123,7 @@ async def purchase_product(
         await bot.send_message(
             chat_id=user_id,
             text=json_text_getter.get_order_info_text(
+                user_id=user.user_id,
                 order_id=order_id,
                 order_data=order_data,
                 product=product,

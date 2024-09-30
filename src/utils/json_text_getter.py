@@ -22,6 +22,7 @@ def get_json_text(key: str) -> Optional[str]:
     
 
 def get_order_info_text(
+    user_id: int,
     order_id: uuid.UUID,
     order_data: CreateOrderDTO,
     product: Product,
@@ -29,7 +30,7 @@ def get_order_info_text(
     if isinstance(order_data.additional_data, SupercellData):
         return get_json_text('supercell_order').format(
             order_id=order_id,
-            user_id=order_data.user_id,
+            user_id=user_id,
             game=product.game,
             category=product.category,
             product_name=product.name,
@@ -40,7 +41,7 @@ def get_order_info_text(
     elif isinstance(order_data.additional_data, RobloxData):
         return get_json_text('roblox_order').format(
             order_id=order_id,
-            user_id=order_data.user_id,
+            user_id=user_id,
             game=product.game,
             category=product.category,
             product_name=product.name,
@@ -52,7 +53,7 @@ def get_order_info_text(
     elif isinstance(order_data.additional_data, BaseAdditionalData):
         return get_json_text('base_order').format(
             order_id=order_id,
-            user_id=order_data.user_id,
+            user_id=user_id,
             game=product.game,
             category=product.category,
             product_name=product.name,
@@ -63,7 +64,7 @@ def get_order_info_text(
     elif isinstance(order_data.additional_data, PubgData):
         return get_json_text('pubg_order').format(
             order_id=order_id,
-            user_id=order_data.user_id,
+            user_id=user_id,
             game=product.game,
             category=product.category,
             product_name=product.name,
@@ -73,7 +74,7 @@ def get_order_info_text(
     elif isinstance(order_data.additional_data, StumbleGuysData):
         return get_json_text('stumble_guys_order').format(
             order_id=order_id,
-            user_id=order_data.user_id,
+            user_id=user_id,
             game=product.game,
             category=product.category,
             product_name=product.name,
