@@ -88,7 +88,7 @@ async def remove_feedback(
 
 @router.get("/user/{user_id}", response_model=User)
 async def get_user_feedbacks(
-    user_id: uuid.UUID,
+    user_id: int,
     user_service: FromDishka[UserService],
 ) -> User:
     return await user_service.get_one_user(user_id=user_id)
