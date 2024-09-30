@@ -9,13 +9,13 @@ from dishka.integrations.fastapi import DishkaRoute
 
 from aiogram.utils.web_app import WebAppInitData
 
-from src.services import FeedbackService
+from src.services import FeedbackService, UserService
 from src.api.schema.feedback import CreateFeedback
 from src.schema import Feedback
 from src.api.dependencies import user_provider
 from src.bot.app.main.config import dev_config
 from src.api.http.exceptions import MethodNotAllowedError
-
+from src.schema import User
 
 router = APIRouter(
     prefix="/feedback",
@@ -84,3 +84,11 @@ async def remove_feedback(
         status_code=200,
         content=dict(detail='success')
     )
+
+
+@router.get("/user/{user_id}", response_model=User)
+async def get_user_feedbacks(
+    user_id: uuid.UUID,
+    user_service: FromDishka[UserService],
+) -> User:
+    return await user_service.get_one_user(user_id=user_id)
