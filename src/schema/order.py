@@ -6,10 +6,10 @@ from typing import Mapping, Any
 
 
 class OrderStatus(StrEnum):
-    PAID = 'paid'
-    CLOSED = 'closed'
-    COMPLETED = 'completed'
-    PROGRESS = 'progress'
+    PAID = 'PAID'
+    CLOSED = 'CLOSED'
+    COMPLETED = 'COMPLETED'
+    PROGRESS = 'PROGRESS'
 
 
 @dataclass(frozen=True)
