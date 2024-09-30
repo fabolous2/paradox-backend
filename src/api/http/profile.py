@@ -8,6 +8,7 @@ from fastapi.responses import JSONResponse
 from dishka import FromDishka
 from dishka.integrations.fastapi import DishkaRoute
 
+from aiogram import Bot
 from aiogram.utils.web_app import WebAppInitData
 
 from src.schema import User, Order, Transaction
@@ -15,7 +16,7 @@ from src.services import UserService, OrderService, TransactionService, ProductS
 from src.api.dependencies import user_provider
 from src.api.schema.order import CreateOrderDTO
 from src.schema.order import OrderStatus
-
+from src.main.config import settings
 
 router = APIRouter(
     prefix="/profile",
