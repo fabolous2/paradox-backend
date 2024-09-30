@@ -19,7 +19,7 @@ class ProductService:
         await self.__product_dal.add(**params)
     
     async def update_product(self, product_id: UUID, **params) -> None:
-        await self.__product_dal.update(**params)
+        await self.__product_dal.update(product_id=product_id, **params)
 
     async def search(self, search_name: str) -> List[Product]:
         return await self.__product_dal.search(search_name)
