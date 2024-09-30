@@ -31,7 +31,7 @@ def get_order_info_text(
         return get_json_text('supercell_order').format(
             order_id=order_id,
             user_id=user_id,
-            game=product.game,
+            game=product.game_name,
             category=product.category,
             product_name=product.name,
             product_price=product.price,
@@ -42,7 +42,7 @@ def get_order_info_text(
         return get_json_text('roblox_order').format(
             order_id=order_id,
             user_id=user_id,
-            game=product.game,
+            game=product.game_name,
             category=product.category,
             product_name=product.name,
             product_price=product.price,
@@ -54,7 +54,7 @@ def get_order_info_text(
         return get_json_text('base_order').format(
             order_id=order_id,
             user_id=user_id,
-            game=product.game,
+            game=product.game_name,
             category=product.category,
             product_name=product.name,
             product_price=product.price,
@@ -65,7 +65,7 @@ def get_order_info_text(
         return get_json_text('pubg_order').format(
             order_id=order_id,
             user_id=user_id,
-            game=product.game,
+            game=product.game_name,
             category=product.category,
             product_name=product.name,
             product_price=product.price,
@@ -75,7 +75,7 @@ def get_order_info_text(
         return get_json_text('stumble_guys_order').format(
             order_id=order_id,
             user_id=user_id,
-            game=product.game,
+            game=product.game_name,
             category=product.category,
             product_name=product.name,
             product_price=product.price,
