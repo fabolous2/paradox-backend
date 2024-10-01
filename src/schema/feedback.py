@@ -9,6 +9,6 @@ class Feedback:
     product_id: UUID
     user_id: int
     text: str
-    stars: int
+    stars: int = field(default=None)
     time: datetime.datetime = field(default=datetime.datetime.now(datetime.UTC))
     is_active: bool = field(default=True)

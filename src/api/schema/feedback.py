@@ -1,4 +1,5 @@
 from uuid import UUID
+from typing import Optional
 
 from pydantic import BaseModel, Field
 
@@ -9,5 +10,5 @@ class FeedbackProduct(BaseModel):
 
 class CreateFeedback(BaseModel):
     product: FeedbackProduct
-    stars: int = Field(le=5)
+    stars: Optional[int] = Field(le=5, default=None)
     text: str = Field(max_length=500)
