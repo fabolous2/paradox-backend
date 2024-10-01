@@ -23,7 +23,6 @@ def upgrade() -> None:
     op.alter_column('feedback', 'stars',
                existing_type=sa.INTEGER(),
                nullable=True)
-    op.drop_index('product_name_game_category_index', table_name='product', postgresql_using='gin')
     # ### end Alembic commands ###
 
 
