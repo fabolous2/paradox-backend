@@ -16,7 +16,7 @@ class SupercellData(BaseModel):
 
 class RobloxData(BaseModel):
     login: str
-    password: int = Field(ge=6, le=6)
+    password: int
     two_factor_code: Optional[int]
 
 
