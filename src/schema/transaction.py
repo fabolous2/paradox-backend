@@ -6,18 +6,18 @@ from typing import Mapping, Any
 
 
 class TransactionType(Enum):
-    DEBIT = 'Списание'
-    DEPOSIT = 'Пополнение'
+    DEBIT = 'DEBIT'
+    DEPOSIT = 'DEPOSIT'
 
 
 class TransactionCause(Enum):
-    DONATE = 'Донат'
-    ADMIN_DEPOSIT = 'Пополнение администратором'
-    ADMIN_DEBIT = 'Списание администратором'
-    COUPON = 'Ввод промокода'
-    REFUND = 'Возврат'
-    PAYMENT = 'Оплата заказа'
-    REFERRAL = 'Реферальный бонус'
+    DONATE = 'DONATE'
+    ADMIN_DEPOSIT = 'ADMIN_DEPOSIT'
+    ADMIN_DEBIT = 'ADMIN_DEBIT'
+    COUPON = 'COUPON'
+    REFUND = 'REFUND'
+    PAYMENT = 'PAYMENT'
+    REFERRAL = 'REFERRAL'
 
 
 @dataclass(frozen=True)
