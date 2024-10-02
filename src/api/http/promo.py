@@ -73,7 +73,10 @@ async def use_promo(
         return JSONResponse(status_code=403, content='Promo is out of uses')
 
     updated_balance = user.balance + promo.bonus_amount
-    await promo_service.update_promo(name=raw_promo.name, uses=promo.uses - 1)
+    if promo.uses == 1:
+        await promo_service.delete_promo(name=raw_promo.name)
+    else:
+        await promo_service.update_promo(name=raw_promo.name, uses=promo.uses - 1)
     await user_service.update_user(user_id=user_data.user.id, used_coupons=used_coupons, balance=updated_balance)
     await transaction_service.add_transaction(
         id=uuid.uuid4(),

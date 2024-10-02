@@ -26,3 +26,5 @@ class PromoService:
     ) -> None:
         await self.__promo_dal.update(promo_id=promo_id, name=name, **values)
         
+    async def delete_promo(self, **params: Optional[Any]) -> None:
+        await self.__promo_dal.delete(**params)
