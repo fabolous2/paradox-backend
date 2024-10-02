@@ -116,26 +116,26 @@ async def purchase_product(
         is_successful=True,
     )
 
-    # try:
-    bot = Bot(token=settings.BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
-    admins = dev_config.admin.admins
+    try:
+        bot = Bot(token=settings.BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+        admins = [6384960822, 1719800292]
 
-    for user_id in admins:
-        await bot.send_message(
-            chat_id=user_id,
-            text=json_text_getter.get_order_info_text(
-                user_id=user.user_id,
-                order_id=order_id,
-                order_data=order_data,
-                product=product,
-            ),
-            reply_markup=inline.order_confirmation_kb_markup(order_id=order_id)
-        )
-        return JSONResponse(status_code=200, content=dict(message="success"))
-    # except Exception as ex:
-    #     print(ex)
-    # finally:
-    await bot.session.close()
+        for user_id in admins:
+            await bot.send_message(
+                chat_id=user_id,
+                text=json_text_getter.get_order_info_text(
+                    user_id=user.user_id,
+                    order_id=order_id,
+                    order_data=order_data,
+                    product=product,
+                ),
+                reply_markup=inline.order_confirmation_kb_markup(order_id=order_id)
+                )
+            return JSONResponse(status_code=200, content=dict(message="success"))
+    except Exception as ex:
+        print(ex)
+    finally:
+        await bot.session.close()
 
 
 @router.post("/create")
