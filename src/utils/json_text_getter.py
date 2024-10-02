@@ -38,7 +38,7 @@ def get_order_info_text(
             email=order_data.additional_data.email,
             code=order_data.additional_data.code,
         )
-    elif isinstance(order_data.additional_data, RobloxData):
+    elif isinstance(order_data.additional_data, RobloxData) or order_data.additional_data.two_factor_code:
         return get_json_text('roblox_order').format(
             order_id=order_id,
             user_id=user_id,
@@ -46,7 +46,7 @@ def get_order_info_text(
             category=product.category,
             product_name=product.name,
             product_price=product.price,
-            email=order_data.additional_data.email,
+            email=order_data.additional_data.login,
             password=order_data.additional_data.password,
             two_factor_code=order_data.additional_data.two_factor_code,
         )
