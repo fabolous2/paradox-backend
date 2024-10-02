@@ -113,6 +113,7 @@ async def purchase_product(
         type=TransactionType.DEBIT,
         cause=TransactionCause.PAYMENT,
         amount=product.price,
+        is_successful=True,
     )
 
     # try:

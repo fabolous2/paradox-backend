@@ -68,14 +68,16 @@ async def use_promo(
         used_coupons['coupons'].append(raw_promo.name) 
     else:
         used_coupons = {'coupons': [raw_promo.name]}
-        
-    await user_service.update_user(user_id=user_data.user.id, used_coupons=used_coupons)
+    
+    updated_balance = user.balance + promo.bonus_amount
+    await user_service.update_user(user_id=user_data.user.id, used_coupons=used_coupons, balance=updated_balance)
     await transaction_service.add_transaction(
         id=uuid.uuid4(),
         user_id=user_data.user.id,
         type=TransactionType.DEPOSIT,
         cause=TransactionCause.COUPON,
         amount=promo.bonus_amount,
+        is_successful=True,
     )
 
     return JSONResponse(status_code=200, content='success')
