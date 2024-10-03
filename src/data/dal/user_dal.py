@@ -55,12 +55,11 @@ class UserDAL:
         return column_value is not None
 
     async def _get(self, **kwargs) -> Optional[_UserResult]:
-        exists = await self.exists(**kwargs)
-        if not exists:
-            return None
-
         query = select(UserModel)
         if kwargs:
+            exists = await self.exists(**kwargs)
+            if not exists:
+                return None
             query = select(UserModel).filter_by(**kwargs)
     
         result = await self.session.execute(query)
