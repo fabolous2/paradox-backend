@@ -23,3 +23,7 @@ class ProductService:
 
     async def search(self, search_name: str) -> List[Product]:
         return await self.__product_dal.search(search_name)
+
+    async def delete_product(self, product_id: UUID) -> None:
+        await self.__product_dal.delete(id=product_id)
+
