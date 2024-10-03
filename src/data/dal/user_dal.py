@@ -59,7 +59,10 @@ class UserDAL:
         if not exists:
             return None
 
-        query = select(UserModel).filter_by(**kwargs)
+        if not kwargs:
+            query = select(UserModel)
+        else:
+            query = select(UserModel).filter_by(**kwargs)
         result = await self.session.execute(query)
         return result
 
