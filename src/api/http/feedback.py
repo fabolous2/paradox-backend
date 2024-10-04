@@ -33,6 +33,7 @@ async def post_feedback(
     await feedback_service.add_feedback(
         id=uuid.uuid4(),
         product_id=data.product.id,
+        order_id=data.order_id,
         user_id=user_data.user.id,
         text=data.text,
         stars=data.stars,
@@ -60,13 +61,13 @@ async def get_one_feedback(
     return await feedback_service.get_one_feedback(id=feedback_id)
 
 
-@router.get("/is_user_posted_feedback/{product_id}")
+@router.get("/is_user_posted_feedback/{order_id}")
 async def is_user_posted_feedback(
-    product_id: uuid.UUID,
+    order_id: uuid.UUID,
     feedback_service: FromDishka[FeedbackService],
     user_data: WebAppInitData = Depends(user_provider),
 ) -> Feedback:
-    return await feedback_service.get_one_feedback(user_id=user_data.user.id, product_id=product_id)
+    return await feedback_service.get_one_feedback(user_id=user_data.user.id, order_id=order_id)
 
 
 @router.get("/remove/{feedback_id}", response_class=JSONResponse)

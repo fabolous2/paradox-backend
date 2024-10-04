@@ -12,6 +12,7 @@ class FeedbackModel(Base):
 
     id: Mapped[uuid.UUID] = mapped_column(UUID, primary_key=True)
     product_id: Mapped[uuid.UUID] = mapped_column(UUID, ForeignKey('product.id'))
+    order_id: Mapped[uuid.UUID] = mapped_column(UUID, ForeignKey('order.id'))
     user_id: Mapped[int] = mapped_column(BigInteger, ForeignKey('user.user_id', ondelete='CASCADE'))
     text: Mapped[str] = mapped_column(String(500), nullable=False)
     stars: Mapped[int] = mapped_column(Integer, nullable=True)
@@ -20,3 +21,4 @@ class FeedbackModel(Base):
     
     user = relationship('UserModel', back_populates='feedbacks')
     product = relationship('ProductModel', back_populates='feedbacks')
+    order = relationship('OrderModel', back_populates='feedbacks')

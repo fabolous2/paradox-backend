@@ -7,6 +7,7 @@ from dataclasses import dataclass, field
 class Feedback:
     id: UUID
     product_id: UUID
+    order_id: UUID
     user_id: int
     text: str
     stars: int = field(default=None)

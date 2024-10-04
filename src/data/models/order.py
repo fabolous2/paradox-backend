@@ -31,3 +31,4 @@ class OrderModel(Base):
 
     user = relationship('UserModel', back_populates='orders')
     product = relationship('ProductModel', back_populates='orders')
+    feedbacks = relationship('FeedbackModel', back_populates='order')

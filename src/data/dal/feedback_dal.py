@@ -77,6 +77,7 @@ class FeedbackDAL:
             return Feedback(
                 id=db_feedback.id,
                 product_id=db_feedback.product_id,
+                order_id=db_feedback.order_id,
                 user_id=db_feedback.user_id,
                 text=db_feedback.text,
                 stars=db_feedback.stars,
@@ -93,12 +94,13 @@ class FeedbackDAL:
                 Feedback(
                     id=db_feedback.id,
                     product_id=db_feedback.product_id,
+                    order_id=db_feedback.order_id,
                     user_id=db_feedback.user_id,
                     text=db_feedback.text,
                     stars=db_feedback.stars,
                     time=db_feedback.time,
                     is_active=db_feedback.is_active,
-            )
+                )
                 for db_feedback in db_feedbacks
             ]
 
