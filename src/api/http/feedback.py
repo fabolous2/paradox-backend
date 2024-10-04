@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime, UTC
 from typing import List
 
 from fastapi import APIRouter, Depends
@@ -37,6 +38,7 @@ async def post_feedback(
         user_id=user_data.user.id,
         text=data.text,
         stars=data.stars,
+        time=datetime.now(tz=UTC)
     )
     
     return JSONResponse(
