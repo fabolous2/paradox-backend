@@ -27,7 +27,7 @@ def get_order_info_text(
     order_data: CreateOrderDTO,
     product: Product,
 ) -> Optional[str]:
-    if isinstance(order_data.additional_data, SupercellData):
+    if product.game_name in ('Clash of Clans', 'Clash Royale', 'Brawl Stars', 'Squad Busters'):
         return get_json_text('supercell_order').format(
             order_id=order_id,
             user_id=user_id,
@@ -38,7 +38,7 @@ def get_order_info_text(
             email=order_data.additional_data.email,
             code=order_data.additional_data.code,
         )
-    elif isinstance(order_data.additional_data, RobloxData) or order_data.additional_data.two_factor_code:
+    elif product.game_name == 'Roblox':
         return get_json_text('roblox_order').format(
             order_id=order_id,
             user_id=user_id,
@@ -48,20 +48,9 @@ def get_order_info_text(
             product_price=product.price,
             email=order_data.additional_data.login,
             password=order_data.additional_data.password,
-            two_factor_code=order_data.additional_data.two_factor_code,
+            two_factor_code=order_data.additional_data.two_factor_code if order_data.additional_data.two_factor_code else '-',
         )
-    elif isinstance(order_data.additional_data, BaseAdditionalData):
-        return get_json_text('base_order').format(
-            order_id=order_id,
-            user_id=user_id,
-            game=product.game_name,
-            category=product.category,
-            product_name=product.name,
-            product_price=product.price,
-            login=order_data.additional_data.login,
-            password=order_data.additional_data.password,
-        )
-    elif isinstance(order_data.additional_data, PubgData):
+    elif product.game_name == 'PUBG':
         return get_json_text('pubg_order').format(
             order_id=order_id,
             user_id=user_id,
@@ -71,7 +60,7 @@ def get_order_info_text(
             product_price=product.price,
             pubg_id=order_data.additional_data.pubg_id,
         )
-    elif isinstance(order_data.additional_data, StumbleGuysData):
+    elif product.game_name == 'Stumble Guys':
         return get_json_text('stumble_guys_order').format(
             order_id=order_id,
             user_id=user_id,
@@ -82,5 +71,13 @@ def get_order_info_text(
             nickname=order_data.additional_data.nickname,
         )
     else:
-        raise ValueError('Input additional data doesn`t match any available order additional data')
-    
+        return get_json_text('base_order').format(
+            order_id=order_id,
+            user_id=user_id,
+            game=product.game_name,
+            category=product.category,
+            product_name=product.name,
+            product_price=product.price,
+            login=order_data.additional_data.login,
+            password=order_data.additional_data.password,
+        )
