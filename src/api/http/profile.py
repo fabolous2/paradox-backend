@@ -1,5 +1,4 @@
 import uuid
-import json
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -7,8 +6,8 @@ from fastapi.responses import JSONResponse
 
 from dishka import FromDishka
 from dishka.integrations.fastapi import DishkaRoute
+from fastapi_cache.decorator import cache
 
-from aiogram import Bot
 from aiogram.utils.web_app import WebAppInitData
 
 from src.schema import User, Order, Transaction
@@ -26,6 +25,7 @@ router = APIRouter(
 
 
 @router.get("/", response_model=User)
+@cache(expire=60 * 60 * 24)
 async def get_user(
     user_service: FromDishka[UserService],
     user_data: WebAppInitData = Depends(user_provider),
@@ -36,6 +36,7 @@ async def get_user(
     
     
 @router.get("/orders", response_model=List[Order])
+@cache(expire=60 * 60 * 24)
 async def get_user_orders(
     order_service: FromDishka[OrderService],
     user_data: WebAppInitData = Depends(user_provider),
@@ -46,6 +47,7 @@ async def get_user_orders(
 
 
 @router.get("/orders/{order_id}", response_model=Order)
+@cache(expire=60 * 60 * 24)
 async def get_one_order(
     order_id: uuid.UUID,
     order_service: FromDishka[OrderService],
@@ -56,6 +58,7 @@ async def get_one_order(
 
 
 @router.get("/transactions", response_model=List[Transaction])
+@cache(expire=60 * 60 * 24)
 async def get_user_transactions(
     transaction_service: FromDishka[TransactionService],
     user_data: WebAppInitData = Depends(user_provider),
@@ -65,6 +68,7 @@ async def get_user_transactions(
 
 
 @router.get("/transactions/{transaction_id}", response_model=Transaction)
+@cache(expire=60 * 60 * 24)
 async def get_one_transaction(
     transaction_id: uuid.UUID,
     transaction_service: FromDishka[TransactionService],

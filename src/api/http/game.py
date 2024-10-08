@@ -1,6 +1,7 @@
 from typing import List
 
 from fastapi import APIRouter
+from fastapi_cache.decorator import cache
 
 from dishka import FromDishka
 from dishka.integrations.fastapi import DishkaRoute
@@ -16,6 +17,7 @@ router = APIRouter(
 
 
 @router.get("/")
+@cache(expire=60 * 60 * 24)
 async def get_all_games(
     game_service: FromDishka[GameService],
 ) -> List[Game]:
@@ -25,6 +27,7 @@ async def get_all_games(
 
 
 @router.get("/{game_id}")
+@cache(expire=60 * 60 * 24)
 async def get_game(
     game_id: int,
     game_service: FromDishka[GameService],

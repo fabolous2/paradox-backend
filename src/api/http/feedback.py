@@ -4,6 +4,7 @@ from typing import List
 
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
+from fastapi_cache.decorator import cache
 
 from dishka import FromDishka
 from dishka.integrations.fastapi import DishkaRoute
@@ -48,6 +49,7 @@ async def post_feedback(
 
 
 @router.get("/", response_model=List[Feedback])
+@cache(expire=60 * 60 * 24)
 async def get_feedbacks(
     feedback_service: FromDishka[FeedbackService],
 ) -> List[Feedback]:
@@ -56,6 +58,7 @@ async def get_feedbacks(
 
 
 @router.get("/{feedback_id}", response_model=Feedback)
+@cache(expire=60 * 60 * 24)
 async def get_one_feedback(
     feedback_id: uuid.UUID,
     feedback_service: FromDishka[FeedbackService],
@@ -90,6 +93,7 @@ async def remove_feedback(
 
 
 @router.get("/user/{user_id}", response_model=User)
+@cache(expire=60 * 60 * 24)
 async def get_user_feedbacks(
     user_id: int,
     user_service: FromDishka[UserService],

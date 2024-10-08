@@ -7,6 +7,7 @@ from fastapi.responses import JSONResponse
 
 from dishka import FromDishka
 from dishka.integrations.fastapi import DishkaRoute
+from fastapi_cache.decorator import cache
 
 from aiogram.utils.web_app import WebAppInitData
 
@@ -25,6 +26,7 @@ router = APIRouter(
 
 
 @router.get('/')
+@cache(expire=60 * 60 * 24)
 async def get_promo(
     name: str,
     promo_service: FromDishka[PromoService],

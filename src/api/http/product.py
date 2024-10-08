@@ -1,8 +1,9 @@
 import uuid
-from typing import Literal, TypeAlias, List, Optional
+from typing import List, Optional
 
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
+from fastapi_cache.decorator import cache
 
 from dishka import FromDishka
 from dishka.integrations.fastapi import DishkaRoute
@@ -33,6 +34,7 @@ router = APIRouter(
 
 
 @router.get('/search')
+@cache(expire=60 * 60 * 24)
 async def search_products(
     search: str,
     product_service: FromDishka[ProductService]
@@ -43,6 +45,7 @@ async def search_products(
 
 
 @router.get('/', response_model=List[Product])
+@cache(expire=60 * 60 * 24)
 async def get_products(
     product_service: FromDishka[ProductService],
     game_id: Optional[int] = None,
@@ -62,6 +65,7 @@ async def get_products(
 
 
 @router.get('/{product_id}', response_model=Product)
+@cache(expire=60 * 60 * 24)
 async def get_one_product(
     product_id: uuid.UUID,
     product_service: FromDishka[ProductService],
