@@ -45,7 +45,7 @@ async def search_products(
 
 
 @router.get('/', response_model=List[Product])
-@cache(expire=60 * 60 * 24)
+# @cache(expire=60 * 60 * 24)
 async def get_products(
     product_service: FromDishka[ProductService],
     game_id: Optional[int] = None,
@@ -65,7 +65,7 @@ async def get_products(
 
 
 @router.get('/{product_id}', response_model=Product)
-@cache(expire=60 * 60 * 24)
+# @cache(expire=60 * 60 * 24)
 async def get_one_product(
     product_id: uuid.UUID,
     product_service: FromDishka[ProductService],
