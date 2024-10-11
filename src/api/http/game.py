@@ -22,6 +22,7 @@ async def get_all_games(
     game_service: FromDishka[GameService],
 ) -> List[Game]:
     response = await game_service.get_all_games()
+    print(response)
     
     return response
 
