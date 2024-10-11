@@ -17,13 +17,12 @@ router = APIRouter(
 
 
 @router.get("/")
-@cache(expire=60 * 60 * 24)
+# @cache(expire=60 * 60 * 24)
 async def get_all_games(
     game_service: FromDishka[GameService],
 ) -> List[Game]:
     response = await game_service.get_all_games()
-    print(response)
-    
+
     return response
 
 
