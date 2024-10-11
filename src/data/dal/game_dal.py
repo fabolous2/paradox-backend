@@ -62,9 +62,9 @@ class GameDAL:
         if not exists:
             return None
 
-        query = select(GameModel).order_by(GameModel.id)
+        query = select(GameModel)
         if kwargs:
-            query = select(GameModel).filter_by(**kwargs).order_by(GameModel.id)
+            query = select(GameModel).filter_by(**kwargs)
 
         result = await self.session.execute(query)
         return result
