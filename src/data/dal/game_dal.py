@@ -62,9 +62,9 @@ class GameDAL:
         if not exists:
             return None
 
-        query = select(GameModel)
+        query = select(GameModel).order_by(GameModel.web_app_place)
         if kwargs:
-            query = select(GameModel).filter_by(**kwargs)
+            query = select(GameModel).filter_by(**kwargs).order_by(GameModel.web_app_place)
 
         result = await self.session.execute(query)
         return result
@@ -90,7 +90,7 @@ class GameDAL:
                 Game(
                     id=db_game.id,
                     name=db_game.name,
-                    image_url=db_game.image_url,
+                    image_url=db_game.image_url
                 )
                 for db_game in db_games
             ]

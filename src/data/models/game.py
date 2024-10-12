@@ -15,5 +15,6 @@ class GameModel(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(String, nullable=False)
     image_url: Mapped[str] = mapped_column(String, nullable=False)
+    web_app_place: Mapped[int] = mapped_column(Integer, nullable=True)
 
     products: Mapped[List["ProductModel"]] = relationship(back_populates="game", uselist=True)
