@@ -25,7 +25,7 @@ router = APIRouter(
 
 
 @router.get("/", response_model=User)
-@cache(expire=60 * 60 * 24)
+# @cache(expire=60 * 60 * 24)
 async def get_user(
     user_service: FromDishka[UserService],
     user_data: WebAppInitData = Depends(user_provider),
@@ -36,7 +36,7 @@ async def get_user(
     
     
 @router.get("/orders", response_model=List[Order])
-@cache(expire=60 * 60 * 24)
+# @cache(expire=60 * 60 * 24)
 async def get_user_orders(
     order_service: FromDishka[OrderService],
     user_data: WebAppInitData = Depends(user_provider),
@@ -58,7 +58,7 @@ async def get_one_order(
 
 
 @router.get("/transactions", response_model=List[Transaction])
-@cache(expire=60 * 60 * 24)
+# @cache(expire=60 * 60 * 24)
 async def get_user_transactions(
     transaction_service: FromDishka[TransactionService],
     user_data: WebAppInitData = Depends(user_provider),
