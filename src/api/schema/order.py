@@ -11,7 +11,7 @@ class BaseAdditionalData(BaseModel):
 
 class SupercellData(BaseModel):
     email: EmailStr
-    code: int = Field(le=999_999, ge=100_000)
+    code: str = Field(min_length=6, max_length=6)
 
 
 class RobloxData(BaseModel):
