@@ -1,11 +1,11 @@
 import datetime
-from enum import StrEnum
+from enum import Enum
 from uuid import UUID
 from dataclasses import dataclass, field
 from typing import Mapping, Any
 
 
-class OrderStatus(StrEnum):
+class OrderStatus(Enum):
     PAID = 'PAID'
     CLOSED = 'CLOSED'
     COMPLETED = 'COMPLETED'
