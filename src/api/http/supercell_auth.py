@@ -20,6 +20,7 @@ async def login(
     data: SupercellAuthDTO,
     supercell_service: FromDishka[SupercellAuthService],
 ) -> JSONResponse:
+    print(data.game)
     supercell_service.login(email=data.email, game=data.game)
     
     return JSONResponse(status_code=200, content=dict(message='success'))

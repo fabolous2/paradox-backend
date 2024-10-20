@@ -16,7 +16,7 @@ class SupercellAuthService():
             "Authorization": '',
         }
         login_data = {
-            "lang": 'en',
+            "lang": 'ru',
             "email": email,
             "remember": "true",
             "game": game,
