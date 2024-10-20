@@ -21,4 +21,4 @@ class Order:
     name: str
     additional_data: Mapping[str, Any]
     status: OrderStatus = field(default=OrderStatus.PROGRESS)
-    time: datetime.datetime = field(default=datetime.datetime.now(datetime.UTC))
+    time: datetime.datetime = field(default=datetime.datetime.now())

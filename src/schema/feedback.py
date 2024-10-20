@@ -11,5 +11,5 @@ class Feedback:
     user_id: int
     text: str
     stars: int = field(default=None)
-    time: datetime.datetime = field(default=datetime.datetime.now(datetime.UTC))
+    time: datetime.datetime = field(default=datetime.datetime.now())
     is_active: bool = field(default=True)
