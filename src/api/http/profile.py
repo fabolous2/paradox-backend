@@ -68,7 +68,6 @@ async def get_user_transactions(
 
 
 @router.get("/transactions/{transaction_id}", response_model=Transaction)
-@cache(expire=60 * 60 * 24)
 async def get_one_transaction(
     transaction_id: uuid.UUID,
     transaction_service: FromDishka[TransactionService],
