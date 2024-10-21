@@ -39,4 +39,4 @@ AdditionalData: TypeAlias = Union[
 
 class CreateOrderDTO(BaseModel):
     product_id: UUID
-    additional_data: AdditionalData
+    additional_data: dict

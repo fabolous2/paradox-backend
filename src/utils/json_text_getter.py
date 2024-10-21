@@ -35,8 +35,8 @@ def get_order_info_text(
             category=product.category,
             product_name=product.name,
             product_price=product.price,
-            email=order_data.additional_data.email,
-            code=order_data.additional_data.code,
+            email=order_data.additional_data.get('email'),
+            code=order_data.additional_data.get('code'),
         )
     elif product.game_name == 'Roblox':
         return get_json_text('roblox_order').format(
@@ -46,9 +46,9 @@ def get_order_info_text(
             category=product.category,
             product_name=product.name,
             product_price=product.price,
-            email=order_data.additional_data.login,
-            password=order_data.additional_data.password,
-            two_factor_code=order_data.additional_data.two_factor_code if order_data.additional_data.two_factor_code else '-',
+            email=order_data.additional_data.get('login'),
+            password=order_data.additional_data.get('password'),
+            two_factor_code=order_data.additional_data.get('two_factor_code') if order_data.additional_data.get('two_factor_code') else '-',
         )
     elif product.game_name == 'PUBG':
         return get_json_text('pubg_order').format(
@@ -58,7 +58,7 @@ def get_order_info_text(
             category=product.category,
             product_name=product.name,
             product_price=product.price,
-            pubg_id=order_data.additional_data.pubg_id,
+            pubg_id=order_data.additional_data.get('pubg_id'),
         )
     elif product.game_name == 'Stumble Guys':
         return get_json_text('stumble_guys_order').format(
@@ -68,7 +68,7 @@ def get_order_info_text(
             category=product.category,
             product_name=product.name,
             product_price=product.price,
-            nickname=order_data.additional_data.nickname,
+            nickname=order_data.additional_data.get('nickname'),
         )
     else:
         return get_json_text('base_order').format(
@@ -78,6 +78,6 @@ def get_order_info_text(
             category=product.category,
             product_name=product.name,
             product_price=product.price,
-            login=order_data.additional_data.login,
-            password=order_data.additional_data.password,
+            login=order_data.additional_data.get('login'),
+            password=order_data.additional_data.get('password'),
         )
