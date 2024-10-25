@@ -15,7 +15,7 @@ from src.services import UserService, OrderService, TransactionService, ProductS
 from src.api.dependencies import user_provider
 from src.api.schema.order import CreateOrderDTO
 from src.schema.order import OrderStatus
-from src.main.config import settings
+from src.api.schema.profile import UpdateProfilePhoto
 
 router = APIRouter(
     prefix="/profile",
@@ -33,6 +33,16 @@ async def get_user(
     user = await user_service.get_one_user(user_id=user_data.user.id)
 
     return user
+
+
+@router.post("/update-profile-photo")
+async def update_profile_photo(
+    data: UpdateProfilePhoto,
+    user_service: FromDishka[UserService],
+    user_data: WebAppInitData = Depends(user_provider),
+) -> Optional[User]:
+    await user_service.update_user(user_id=user_data.user.id, profile_photo=data.photo_url)
+    return await user_service.get_one_user(user_id=user_data.user.id)
     
     
 @router.get("/orders", response_model=List[Order])

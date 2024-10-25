@@ -21,6 +21,7 @@ from src.api.http import (
     feedback,
     payment_system,
     game,
+    cloud_storage,
 )
 from src.main.ioc import DALProvider, DatabaseProvider, ServiceProvider
 
@@ -67,14 +68,6 @@ async def validation_exception_handler(request: Request, exc: ValidationExceptio
     )
 
 
-# @app.exception_handler(DBAPIError)
-# async def validation_exception_handler(request: Request, exc: DBAPIError):
-#     return JSONResponse(
-#         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-#         content=jsonable_encoder({"detail": "Wrong SQL statement or params."}),
-#     )
-
-
 app.include_router(product.router)
 app.include_router(profile.router)
 app.include_router(promo.router)
@@ -83,6 +76,7 @@ app.include_router(supercell_auth.router)
 app.include_router(feedback.router)
 app.include_router(payment_system.router)
 app.include_router(game.router)
+app.include_router(cloud_storage.router)
 
 container = make_async_container(DALProvider(), DatabaseProvider(), ServiceProvider())
 setup_dishka(container, app)
