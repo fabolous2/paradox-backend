@@ -26,8 +26,8 @@ router = APIRouter(
 )
 
 
-@inject
 @router.get("/", response_model=User)
+@inject
 # @cache(expire=60 * 60 * 24)
 async def get_user(
     user_service: UserService = Depends(Provide[Container.user_service]),
@@ -37,8 +37,8 @@ async def get_user(
 
     return user
 
-@inject
 @router.post("/update-profile-photo")
+@inject
 async def update_profile_photo(
     data: UpdateProfilePhoto,
     user_service: UserService = Depends(Provide[Container.user_service]),
@@ -47,8 +47,8 @@ async def update_profile_photo(
     await user_service.update_user(user_id=user_data.user.id, profile_photo=data.photo_url)
     return await user_service.get_one_user(user_id=user_data.user.id)
     
-@inject
 @router.get("/orders", response_model=List[Order])
+@inject
 # @cache(expire=60 * 60 * 24)
 async def get_user_orders(
     order_service: OrderService = Depends(Provide[Container.order_service]),
@@ -58,9 +58,9 @@ async def get_user_orders(
 
     return orders
 
-@inject
 @router.get("/orders/{order_id}", response_model=Order)
 @cache(expire=60 * 60 * 24)
+@inject
 async def get_one_order(
     order_id: uuid.UUID,
     order_service: OrderService = Depends(Provide[Container.order_service]),
@@ -69,8 +69,8 @@ async def get_one_order(
     order = await order_service.get_one_order(id=order_id)
     return order
 
-@inject
 @router.get("/transactions", response_model=List[Transaction])
+@inject
 # @cache(expire=60 * 60 * 24)
 async def get_user_transactions(
     transaction_service: TransactionService = Depends(Provide[Container.transaction_service]),
@@ -79,8 +79,8 @@ async def get_user_transactions(
     transactions = await transaction_service.get_transactions(user_id=user_data.user.id, is_successful=True)
     return transactions
 
-@inject
 @router.get("/transactions/{transaction_id}", response_model=Transaction)
+@inject
 async def get_one_transaction(
     transaction_id: uuid.UUID,
     transaction_service: TransactionService = Depends(Provide[Container.transaction_service]),
@@ -93,8 +93,8 @@ async def get_one_transaction(
     return transaction
 
 
-@inject
 @router.post("/orders")
+@inject
 async def create_order(
     order_data: CreateOrderDTO,
     order_service: OrderService = Depends(Provide[Container.order_service]),
