@@ -5,8 +5,7 @@ from typing import Optional
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 
-from dishka import FromDishka
-from dishka.integrations.fastapi import DishkaRoute
+from dependency_injector.wiring import inject, Provide
 from fastapi_cache.decorator import cache
 
 from aiogram.utils.web_app import WebAppInitData
@@ -16,20 +15,21 @@ from src.services import PromoService, UserService, TransactionService
 from src.schema.transaction import TransactionCause, TransactionType
 from src.api.dependencies import user_provider
 from src.schema import Promo
+from src.main.ioc import Container
+
 
 
 router = APIRouter(
     prefix="/promo",
     tags=["Promo"],
-    route_class=DishkaRoute
 )
-
 
 @router.get('/')
 @cache(expire=60 * 60 * 24)
+@inject
 async def get_promo(
     name: str,
-    promo_service: FromDishka[PromoService],
+    promo_service: PromoService = Depends(Provide[Container.promo_service]),
 ) -> Optional[Promo]:
     promo = await promo_service.get_one_promo(name=name)
  
@@ -37,9 +37,10 @@ async def get_promo(
 
 
 @router.get('/check-used')
+@inject
 async def check_used(
     name: str,
-    user_service: FromDishka[UserService],
+    user_service: UserService = Depends(Provide[Container.user_service]),
     user_data: WebAppInitData = Depends(user_provider),
 ) -> JSONResponse:
     user = await user_service.get_one_user(user_id=user_data.user.id)
@@ -50,11 +51,12 @@ async def check_used(
 
 
 @router.post('/')
+@inject
 async def use_promo(
     raw_promo: RawPromo,
-    promo_service: FromDishka[PromoService],
-    user_service: FromDishka[UserService],
-    transaction_service: FromDishka[TransactionService],
+    promo_service: PromoService = Depends(Provide[Container.promo_service]),
+    user_service: UserService = Depends(Provide[Container.user_service]),
+    transaction_service: TransactionService = Depends(Provide[Container.transaction_service]),
     user_data: WebAppInitData = Depends(user_provider),
 ) -> JSONResponse:
     promo = await promo_service.get_one_promo(name=raw_promo.name)

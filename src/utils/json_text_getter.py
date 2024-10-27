@@ -3,14 +3,7 @@ import os
 import uuid
 from typing import Optional
 
-from src.api.schema.order import (
-    CreateOrderDTO,
-    SupercellData,
-    RobloxData,
-    BaseAdditionalData,
-    PubgData,
-    StumbleGuysData,
-)
+from src.api.schema.order import CreateOrderDTO
 from src.schema import Product
 
 

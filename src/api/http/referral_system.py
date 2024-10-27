@@ -3,8 +3,7 @@ from typing import Union
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 
-from dishka import FromDishka
-from dishka.integrations.fastapi import DishkaRoute
+from dependency_injector.wiring import inject, Provide
 from fastapi_cache.decorator import cache
 
 from aiogram.utils.web_app import WebAppInitData
@@ -13,19 +12,19 @@ from src.services import UserService
 from src.api.schema.referral import ReferralCode, NewReferralCode
 from src.main.config import settings
 from src.api.dependencies import user_provider
+from src.main.ioc import Container
 
 
 router = APIRouter(
     prefix="/referral",
     tags=["Referral System"],
-    route_class=DishkaRoute,
 )
 
-
 @router.get("/check_code_availability")
+@inject
 async def check_code(
     referral_code: str,
-    user_service: FromDishka[UserService],
+    user_service: UserService = Depends(Provide[Container.user_service]),
 ) -> JSONResponse:
     user = await user_service.get_one_user(referral_code=referral_code)
     if not user:
@@ -36,8 +35,9 @@ async def check_code(
 
 @router.get("/get_code", response_model=ReferralCode)
 @cache(expire=60 * 60 * 24)
+@inject
 async def get_referral_code(
-    user_service: FromDishka[UserService],
+    user_service: UserService = Depends(Provide[Container.user_service]),
     user_data: WebAppInitData = Depends(user_provider),
 ) -> Union[JSONResponse, ReferralCode]:
     user = await user_service.get_one_user(user_id=user_data.user.id)
@@ -50,9 +50,10 @@ async def get_referral_code(
 
 
 @router.post("/set_code")
+@inject
 async def set_code(
     referral_code: NewReferralCode,
-    user_service: FromDishka[UserService],
+    user_service: UserService = Depends(Provide[Container.user_service]),
     user_data: WebAppInitData = Depends(user_provider),
 ) -> ReferralCode:
     user = await user_service.get_one_user(user_id=user_data.user.id)

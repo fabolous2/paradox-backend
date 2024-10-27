@@ -1,22 +1,23 @@
 import io
 
-from fastapi import APIRouter, File, UploadFile
+from fastapi import APIRouter, File, UploadFile, Depends
 
-from dishka.integrations.fastapi import DishkaRoute, FromDishka
+from dependency_injector.wiring import inject, Provide
 
+from src.main.ioc import Container
 from src.services import YandexStorageClient
 
 
 router = APIRouter(
     prefix="/cloud-storage",
     tags=["Cloud Storage"],
-    route_class=DishkaRoute,
 )
 
 
 @router.post("/upload-file")
+@inject
 async def upload_file(
-    yandex_storage_client: FromDishka[YandexStorageClient],
+    yandex_storage_client: YandexStorageClient = Depends(Provide[Container.yandex_storage_client]),
     file: UploadFile = File(...),
 ) -> dict:
     content = await file.read()

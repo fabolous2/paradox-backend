@@ -9,9 +9,7 @@ from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
 from redis import asyncio as aioredis
 
-from dishka import make_async_container
-from dishka.integrations.fastapi import setup_dishka
-
+from src.main.ioc import Container
 from src.api.http import (
     product,
     profile,
@@ -23,8 +21,7 @@ from src.api.http import (
     game,
     cloud_storage,
 )
-from src.main.ioc import DALProvider, DatabaseProvider, ServiceProvider
-
+from src.main.config import settings
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -35,6 +32,15 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
+container = Container()
+app.container = container
+
+container.config.from_dict({
+    "YANDEX_STORAGE_TOKEN": settings.YANDEX_STORAGE_TOKEN,
+    "YANDEX_STORAGE_SECRET": settings.YANDEX_STORAGE_SECRET,
+    "YANDEX_STORAGE_BUCKET_NAME": settings.YANDEX_STORAGE_BUCKET_NAME,
+})
+container.wire(modules=[__name__])
 
 origins = [
     "http://localhost:3000",
@@ -77,6 +83,3 @@ app.include_router(feedback.router)
 app.include_router(payment_system.router)
 app.include_router(game.router)
 app.include_router(cloud_storage.router)
-
-container = make_async_container(DALProvider(), DatabaseProvider(), ServiceProvider())
-setup_dishka(container, app)
