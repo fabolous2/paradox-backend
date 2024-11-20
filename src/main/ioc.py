@@ -25,8 +25,13 @@ class Database:
     @staticmethod
     async def get_async_session(sessionmaker: async_sessionmaker[AsyncSession]) -> AsyncGenerator[AsyncSession, None]:
         async with sessionmaker() as session:
-            yield session
-            await session.close()
+            try:
+                yield session
+            except Exception as e:
+                await session.rollback()
+                raise e
+            finally:
+                await session.close()
 
 class Container(containers.DeclarativeContainer):
     wiring_config = containers.WiringConfiguration(modules=[
