@@ -1,5 +1,6 @@
 import uuid
 from typing import List, Optional
+import datetime
 
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
@@ -105,6 +106,7 @@ async def purchase_product(
         name=product.name,
         price=product.price,
         additional_data=order_data.additional_data,
+        time=datetime.datetime.now(),
     )
     await user_service.update_user(user_id=user.user_id, balance=user.balance - product.price)
     await transaction_service.add_transaction(
